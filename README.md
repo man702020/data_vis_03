@@ -10,7 +10,6 @@ Project information can also be found in the [`/general-info`](./general-info) d
 
 - Caleb Anthony
 - Scott Fasone
-- Allison Meier
 - Manish Raj Aryal
 
 ## Running the application
