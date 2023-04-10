@@ -1,2 +1,2 @@
-# data_vis_03
+# Data Visualization Project 3
 Repository for Data visualization Project Number 3
