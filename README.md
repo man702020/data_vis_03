@@ -1,8 +1,8 @@
 # CS6024 Project 3
 
-This project is about calls to 3-1-1 in Cincinnati, Ohio.
+This project is about TV- time. We would be attempting to recreate a TV series through a data visualization process. 
 
-Project Link: <https://uc.instructure.com/courses/1581844/pages/project-2-who-you-gonna-call-3-1-1>
+Project Link: <https://uc.instructure.com/courses/1581844/pages/project-3-tv-time?module_item_id=69343909>
 
 Project information can also be found in the [`/general-info`](./general-info) directory.
 
