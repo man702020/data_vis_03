@@ -12,6 +12,13 @@ Project information can also be found in the [`/general-info`](./general-info) d
 - Scott Fasone
 - Manish Raj Aryal
 
+## Running the transcript scrapper
+```bash
+./startKorraScrape.sh
+```
+Creates a csv file containing data and links to every season and episode
+
+
 ## Running the application
 
 To run this project, simply serve this project repository using an HTTP server, using a simple script or a fully-featured one like Nginx.
