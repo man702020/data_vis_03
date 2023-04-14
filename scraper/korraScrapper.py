@@ -1,3 +1,11 @@
+import os
+import urllib3
+
+from bs4 import BeautifulSoup
+import pandas as pd
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 # This code uses links to scrape the korra fan wiki to find seasons then episodes then transcripts for each episode
 # Process: Manually input the link to the four seasons
 # Scroll through and pull each episode name/number/link, store in dictionary of seasons (or dataframe)
@@ -10,7 +18,7 @@
 # dialogue has character in first column (character specific actions are given within "[]", )
 # Each episode will have the following format:
 #
-# ID (int): id for unique identification 
+# ID (int): id for unique identification
 # Season_Number (int): season number
 # Episode_Number (int): episode number
 # Episode_Name (varchar): episode name
@@ -19,27 +27,26 @@
 # Character (varchar): Name of character
 # Dialogue (varchar): Dialogue from character or action taken
 # Link (varchar): Link to transcript
-# ??Scene # (varchar): Potential scene numbers infered by the actions taken between dialogue 
+# ??Scene # (varchar): Potential scene numbers infered by the actions taken between dialogue
 
-#NOTE: You can ignore this above process since the other script was already created (leaving in just in case)
-FOUR_SEASON_LINKS = [{'season':1, 'url':"https://avatar.fandom.com/wiki/Book_One:_Air"}, {'season':2,'url':"https://avatar.fandom.com/wiki/Book_Two:_Spirits"},
-                     {'season':3,'url':"https://avatar.fandom.com/wiki/Book_Three:_Change"},{'season':4,'url':"https://avatar.fandom.com/wiki/Book_Four:_Balance"}
-                    ]
+# NOTE: You can ignore this above process since the other script was already created (leaving in just in case)
+FOUR_SEASON_LINKS = [
+    { 'season': 1, 'url': "https://avatar.fandom.com/wiki/Book_One:_Air" },
+    { 'season': 2, 'url': "https://avatar.fandom.com/wiki/Book_Two:_Spirits" },
+    { 'season': 3, 'url': "https://avatar.fandom.com/wiki/Book_Three:_Change" },
+    { 'season': 4, 'url': "https://avatar.fandom.com/wiki/Book_Four:_Balance" }
+]
 
-from bs4 import BeautifulSoup
-#from tinydb import TinyDB, Query
-import urllib3
-import pandas as pd
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-#Helper functions
+
+# Helper functions
 def getPage(url):
     http = urllib3.PoolManager()
     r = http.request("GET", url)
-    return BeautifulSoup(r.data,'lxml')
+    return BeautifulSoup(r.data, "html.parser")
 
-def cleanText(text): #cleans up newlines and whitespaces in a text
-    return text.replace('\n','').replace('\r','').strip()
+def cleanText(text): # cleans up newlines and whitespaces in a text
+    return text.replace('\n', '').replace('\r', '').strip()
 
 # Creates an object describing every episode
 # Returns:
@@ -49,7 +56,7 @@ def cleanText(text): #cleans up newlines and whitespaces in a text
 #  title:   (string) title of episode
 #  url:     (string) direct url to transcript of episode
 # }
-def generateEpisodeUrls(season,page): #parses main index and returns cas/linkTouple list
+def generateEpisodeUrls(season, page): # parses main index and returns cas/linkTouple list
     linkHeader = "https://avatar.fandom.com/"
     print("\n Generating episodes for season",season)
     table = page.find_all("table") [1] # sholuld be the second table
@@ -57,27 +64,35 @@ def generateEpisodeUrls(season,page): #parses main index and returns cas/linkTou
           table = page.find_all("table") [0] # sholuld be the second table
     tbody = table.find("tbody")
     rows = tbody.find_all("tr",recursive=False) # each tr at this level is an episode
-   
+
     season_episodes = []
-    for num,episode in enumerate(rows): #iterate over every row and get data
-        dataRows = episode.find_all("td") #  
+    for num, episode in enumerate(rows): #iterate over every row and get data
+        dataRows = episode.find_all("td") #
         episodeURL = linkHeader + dataRows[1].find('a').get('href') # direct url (need debug for empty data)
         title = dataRows[1].find('a').get('title')
         episodePage = getPage(episodeURL)
         transcriptUrl = getTranscriptUrl(episodePage)
         if transcriptUrl:
             transcriptUrl = linkHeader + transcriptUrl
+        else:
+            print(f"ERROR: Could not find transcript link for episode: '{episodeURL}'")
 
-        episodeData = {'season':season,'episode':num, 'title':title, 'url': transcriptUrl}
+
+        episodeData = {
+            'season': season,
+            'episode': num + 1,
+            'title': title,
+            'url': transcriptUrl
+        }
         season_episodes.append(episodeData)
-        print("Found and generated",title,transcriptUrl)
+        print("Found and generated", title, transcriptUrl)
         #if num >=1:
         #    break
         #TODO: possibly put delay to prevent spammy blocks
-    
+
     return season_episodes
 
-def getTranscriptUrl(page):
+def getTranscriptUrl(page: BeautifulSoup):
     dl_tags = page.find_all("dl")
     for dl in dl_tags: #I understand there is a more efficient way to do this but this might catch more edge cases
         links = dl.find_all('a')
@@ -97,29 +112,33 @@ def getTranscriptUrl(page):
 #  title:   (string) title of episode
 #  url:     (string) direct url to transcript of episode
 # }]
-def scrape_Seasons():
+def scrape_seasons():
     totalEpisodes = 0
     all_episodes = []
     for season in FOUR_SEASON_LINKS:
         print("Grabbing",season['url'])
         page = getPage(season['url'])
-        episodeData = generateEpisodeUrls(season['season'],page) # generates episode data for all episodes in season
+        episodeData = generateEpisodeUrls(season['season'], page) # generates episode data for all episodes in season
         all_episodes += episodeData # should work?
-    
+
     totalEpisodes = len(all_episodes)
-    print("found",totalEpisodes,all_episodes) 
+    print("found", totalEpisodes,all_episodes)
     return all_episodes
 
 def exportData(data):
+    project_folder = os.path.dirname(os.path.dirname(__file__))
+    output_path = os.path.join(project_folder, "data", "KorraEpisodes.csv")
+
     episodeDF = pd.DataFrame(data)
-    episodeDF.to_csv("./KorraEpisodes.csv")
+    episodeDF.to_csv(output_path, index=False)
 
 
 ## output: list
-def Main():
+def main():
     print("Starting")
-    results = scrape_Seasons()
-    print("Finished Gathering Data:",len(results),"episodes")
+    results = scrape_seasons()
+    print("Finished Gathering Data:", len(results), "episodes")
     exportData(results)
 
-Main()
+if __name__ == "__main__":
+    main()

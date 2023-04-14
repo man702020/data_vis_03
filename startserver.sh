@@ -1,1 +1,3 @@
-python3 -m http.server
+#!/bin/sh
+
+npm run dev

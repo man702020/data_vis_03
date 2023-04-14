@@ -1,5 +1,3 @@
-declare function parseRecord(row: d3.DSVRowString<string>): CallData;
-type FilterFn = (d: CallData) => boolean | undefined | 0;
-declare function visualizeData(data: CallData[]): void;
-declare const MONTH_NAMES: string[];
+type FilterFn = (d: KorraEpisode) => boolean | undefined | 0;
+declare function visualizeData(data: KorraEpisode[]): void;
 //# sourceMappingURL=index.d.ts.map
