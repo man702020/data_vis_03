@@ -43,6 +43,26 @@ function visualizeData(data: KorraEpisode[]) {
 
 
 
+    const episodesPerSeason = new BarChart(
+        data,
+        aggregateMapper(
+            (d) => d.season.toString(),
+            (b, c) => ({ label: b, value: c, tooltip: `${c} Episodes` })
+        ),
+        {
+            xAxisLabel: "Season",
+            yAxisLabel: "Episodes",
+            colorScheme: d3.schemeCategory10
+        },
+        {
+            parent: "#chart-container",
+            className: "col-12",
+            height: 200,
+            width: 500,
+            margin: { top: 50, right: 50, bottom: 50, left: 80 }
+        }
+    )
+
     /*
     const timelineHist = new DateHistogramChart(
         data,

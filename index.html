@@ -35,81 +35,16 @@
         <main class="container-fluid flex-grow-1">
             <div class="row h-100">
                 <section class="col-4" id="side-panel">
-                 <!-- A and B goals here -->
+                    <div class="row" id="chart-container">
 
-                 <div id="dow-trend-container" ></div>
-                 <div id="category-trend-container"></div>
-                 <div>
-                      <button onclick="location.href='timePie.html'" type="button">Call Update Times</button>
-                  </div>
+                    </div>
 
-
-
+                    <div id="episode-per-season-container"></div>
 
                 </section>
-                <div class="col-8">
-                    <div class="row row-cols-1">
-                        <section class="col position-relative">
-                            <div id="map-container"></div>
-                            <div id="toggle-panel">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h1 class="card-title h6">
-                                            Select Map Tileset
-                                        </h1>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="map-base-layer-switch" id="map-base-layer-switch-esri"/>
-                                            <label class="form-check-label" for="map-base-layer-switch-esri">Satallite</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="map-base-layer-switch" id="map-base-layer-switch-topo"/>
-                                            <label class="form-check-label" for="map-base-layer-switch-topo">Intense Roads</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="map-base-layer-switch" id="map-base-layer-switch-stamen-terrain" checked/>
-                                            <label class="form-check-label" for="map-base-layer-switch-stamen-terrain">Cool Roads</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="brush-panel">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="map-brush-switch" id="map-brush-switch-off" checked/>
-                                            <label class="form-check-label" for="map-brush-switch-off">Navigate Mode</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="map-brush-switch" id="map-brush-switch-on"/>
-                                            <label class="form-check-label" for="map-brush-switch-on">Brush Mode</label>
-                                        </div>
-                                        <button id="map-brush-clear" class="btn btn-sm btn-secondary">Clear Brush</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-                        <section class="col">
-                            <div id="input-timeline">
-                              <div class="inputs-column">
-                                <div class="form-group">
-                                  <label for="Month">Input Bin Start Date for the month:</label>
-                                  <input type="number" id="Month" name="Month" placeholder="Start Day for Month" max="30" onchange="resetTimelineMonth(this.value)">
-                                </div>
-                                <div class="form-group">
-                                  <label for="Week">Input Bin Start Date for the Week:</label>
-                                  <input type="number" id="Week" name="Week" placeholder="Start Day for Week" max="6" onchange="resetTimelineWeek(this.value)">
-                                </div>
-                              </div>
-                              <div class="buttons-column">
-                                <button id="reset-button" class="btn btn-sm btn-outline-secondary" type="button">Reset Filters</button>
-                                <button id="week-button"  class="btn btn-sm btn-outline-secondary" type="button">Show Weeks</button>
-                                <button id="month-button" class="btn btn-sm btn-outline-secondary" type="button">Show Days</button>
-                              </div>
-                            </div>
-                            <div id="timeline-container" class="h-100"></div>
-                        </section>
-                    </div>
-                </div>
+                <section class="col-8 d-flex align-items-center justify-content-center bg-dark-subtle">
+                    <h1 class="text-secondary-emphasis">Placeholder</h1>
+                </section>
             </div>
 
         </main>
