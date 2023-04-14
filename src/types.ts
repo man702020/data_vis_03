@@ -1,6 +1,6 @@
 type CallStatus = "NEW" | "OPEN" | "CLOS";
 
-interface CallData {
+interface KorraEpisode {
     SERVICE_REQUEST_ID?: string;
     STATUS?: CallStatus;
     SERVICE_NAME?: string;
