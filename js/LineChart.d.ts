@@ -22,9 +22,6 @@ interface MultiLineConfig extends ChartConfig<Series> {
     xTickFormat?: (d: number) => string;
     yAxisLabel: string;
     yTickFormat?: (d: number) => string;
-    tooltipFn?: (d: Point2D & {
-        series: Series;
-    }) => string;
     colorScheme?: readonly string[];
     eventHandler?: CharacterEventHandler;
     xScale?: "linear" | "log";
@@ -40,7 +37,7 @@ declare class MultiLineChart<T> extends AbstractChart<T, Series, MultiLineConfig
     protected labels: string[];
     protected legend: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
     setData(sourceData: T[]): void;
-    constructor(rawData: T[], dataMapper: DataMapperFn<T, Series>, lineConfig: MultiLineConfig, drawConfig: DrawConfig, tooltip?: string);
+    constructor(rawData: T[], dataMapper: DataMapperFn<T, Series>, lineConfig: MultiLineConfig, drawConfig: DrawConfig);
     protected renderAxes(xWrapWidth?: number): void;
     render(): void;
 }
