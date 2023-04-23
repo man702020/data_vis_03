@@ -42,6 +42,9 @@ function visualizeData(data: KorraEpisode[]) {
     // }
 
     const characterEventHandler = new CharacterEventHandler();
+    characterEventHandler.addEventHandler((ev, ch) => {
+        console.log(ev, ch);
+    })
 
 
 
@@ -90,7 +93,8 @@ function visualizeData(data: KorraEpisode[]) {
         {
             xAxisLabel: "Character",
             yAxisLabel: "Lines",
-            labelOrder: topTenCharacters
+            labelOrder: topTenCharacters,
+            eventHandler: characterEventHandler
         },
         {
             parent: "#chart-container",

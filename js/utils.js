@@ -43,7 +43,7 @@ function wrapAxisText(text, width) {
 const tooltipElement = d3.select("#tooltip");
 function enableTooltip(sel, ttFn) {
     sel
-        .on("mouseover", (ev, d) => {
+        .on("mouseover.tooltip", (ev, d) => {
         const tooltip = ttFn(d);
         if (!tooltip) {
             return;
@@ -54,7 +54,7 @@ function enableTooltip(sel, ttFn) {
             .style("visibility", "visible")
             .html(tooltip);
     })
-        .on("mouseout", () => {
+        .on("mouseout.tooltip", () => {
         tooltipElement.style("visibility", "hidden");
     });
 }

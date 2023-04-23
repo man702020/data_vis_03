@@ -95,6 +95,7 @@ class MultiLineChart extends AbstractChart {
         this.renderAxes();
     }
     constructor(rawData, dataMapper, lineConfig, drawConfig) {
+        var _a;
         super(rawData, dataMapper, lineConfig, drawConfig);
         this.legend = this.svg.append("g")
             .attr("class", "legend")
@@ -108,6 +109,21 @@ class MultiLineChart extends AbstractChart {
             .attr("fill", "#fff")
             .attr("stroke", "#000");
         this.render();
+        (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.addEventHandler((ev, label) => {
+            switch (ev) {
+                case "hover":
+                    this.ctx.selectAll(`.line-plot-layer-${label}`)
+                        .classed("highlight", true);
+                    this.legend.selectAll(`.legend-entry-${label}`)
+                        .classed("highlight", true);
+                    break;
+                case "unhover":
+                    this.ctx.selectAll(`.line-plot-layer-${label}`)
+                        .classed("highlight", false);
+                    this.legend.selectAll(`.legend-entry-${label}`)
+                        .classed("highlight", false);
+            }
+        });
     }
     renderAxes(xWrapWidth) {
         this.svg.selectAll(".x-axis,.x-label,.y-axis,.y-label").remove();
@@ -137,7 +153,6 @@ class MultiLineChart extends AbstractChart {
             .text(this.chartConfig.yAxisLabel);
     }
     render() {
-        var _a;
         this.legend.selectAll(".legend-entry").data(this.data).join("g")
             .attr("transform", (_, i) => `translate(5, ${5 + i * 20})`)
             .attr("class", (d) => `legend-entry legend-entry-${d.label}`)
@@ -166,21 +181,6 @@ class MultiLineChart extends AbstractChart {
             .attr("fill", (d) => d.series.color || "#000")
             .on("mouseover", (_, d) => { var _a; return (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.emit("hover", d.series.label); })
             .on("mouseout", (_, d) => { var _a; return (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.emit("unhover", d.series.label); });
-        (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.addEventHandler((ev, label) => {
-            switch (ev) {
-                case "hover":
-                    this.ctx.selectAll(`.line-plot-layer-${label}`)
-                        .classed("highlight", true);
-                    this.legend.selectAll(`.legend-entry-${label}`)
-                        .classed("highlight", true);
-                    break;
-                case "unhover":
-                    this.ctx.selectAll(`.line-plot-layer-${label}`)
-                        .classed("highlight", false);
-                    this.legend.selectAll(`.legend-entry-${label}`)
-                        .classed("highlight", false);
-            }
-        });
     }
 }
 //# sourceMappingURL=LineChart.js.map

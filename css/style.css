@@ -10,9 +10,9 @@
 }
 
 .data-element {
-    opacity: 0.85;
+    opacity: 0.75;
 }
-.data-element:hover {
+.data-element.highlight, .data-element:hover {
     opacity: 1;
 }
 

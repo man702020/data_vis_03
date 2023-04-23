@@ -55,7 +55,7 @@ function enableTooltip<Datum, PDatum>(
     ttFn: (d: Datum) => string | undefined
 ) {
     sel
-        .on("mouseover", (ev, d) => {
+        .on("mouseover.tooltip", (ev, d) => {
             const tooltip = ttFn(d);
             if (!tooltip) { return; }
             tooltipElement
@@ -64,7 +64,7 @@ function enableTooltip<Datum, PDatum>(
                 .style("visibility", "visible")
                 .html(tooltip)
         })
-        .on("mouseout", () => {
+        .on("mouseout.tooltip", () => {
             tooltipElement.style("visibility", "hidden")
         });
 }

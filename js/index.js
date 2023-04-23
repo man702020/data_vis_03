@@ -31,6 +31,9 @@ function visualizeData(data) {
     //     rerenderData()
     // }
     const characterEventHandler = new CharacterEventHandler();
+    characterEventHandler.addEventHandler((ev, ch) => {
+        console.log(ev, ch);
+    });
     const episodesPerSeason = new BarChart(data, aggregateMapper((d) => d.season.toString(), (b, c) => ({ label: b, value: c, tooltip: `${c} Episodes` })), {
         xAxisLabel: "Season",
         yAxisLabel: "Episodes",
@@ -62,7 +65,8 @@ function visualizeData(data) {
     const linesPerCharacter = new BarChart(topTenCharacterLines, elementMapper(([speaker, lines]) => ({ label: speaker, value: lines, color: characterColors[speaker] })), {
         xAxisLabel: "Character",
         yAxisLabel: "Lines",
-        labelOrder: topTenCharacters
+        labelOrder: topTenCharacters,
+        eventHandler: characterEventHandler
     }, {
         parent: "#chart-container",
         className: "col-12",

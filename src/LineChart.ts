@@ -177,6 +177,22 @@ class MultiLineChart<T> extends AbstractChart<T, Series, MultiLineConfig>
             .attr("fill", "#fff")
             .attr("stroke", "#000");
         this.render();
+
+        this.chartConfig.eventHandler?.addEventHandler((ev, label) => {
+            switch(ev) {
+                case "hover":
+                    this.ctx.selectAll(`.line-plot-layer-${label}`)
+                        .classed("highlight", true);
+                    this.legend.selectAll(`.legend-entry-${label}`)
+                        .classed("highlight", true);
+                    break;
+                case "unhover":
+                    this.ctx.selectAll(`.line-plot-layer-${label}`)
+                        .classed("highlight", false);
+                    this.legend.selectAll(`.legend-entry-${label}`)
+                        .classed("highlight", false);
+            }
+        });
     }
 
     protected renderAxes(xWrapWidth?: number) {
@@ -238,23 +254,5 @@ class MultiLineChart<T> extends AbstractChart<T, Series, MultiLineConfig>
             .attr("fill", (d) => d.series.color || "#000")
             .on("mouseover", (_, d) => this.chartConfig.eventHandler?.emit("hover", d.series.label))
             .on("mouseout", (_, d) => this.chartConfig.eventHandler?.emit("unhover", d.series.label));
-
-
-
-        this.chartConfig.eventHandler?.addEventHandler((ev, label) => {
-            switch(ev) {
-                case "hover":
-                    this.ctx.selectAll(`.line-plot-layer-${label}`)
-                        .classed("highlight", true);
-                    this.legend.selectAll(`.legend-entry-${label}`)
-                        .classed("highlight", true);
-                    break;
-                case "unhover":
-                    this.ctx.selectAll(`.line-plot-layer-${label}`)
-                        .classed("highlight", false);
-                    this.legend.selectAll(`.legend-entry-${label}`)
-                        .classed("highlight", false);
-            }
-        })
     }
 }

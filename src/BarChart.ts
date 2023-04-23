@@ -6,6 +6,7 @@ interface CommonBarConfig {
     labelSort?: (a: string, b: string) => number;
     sort?: (a: BarData, b: BarData) => number;
     colorScheme?: readonly string[];
+    eventHandler?: CharacterEventHandler
 }
 interface BarConfig extends CommonBarConfig, XYChartConfig<BarData, string, number> {  }
 interface HorizontalBarConfig extends CommonBarConfig, XYChartConfig<BarData, number, string> {  }
@@ -68,11 +69,24 @@ class BarChart<T> extends AbstractXYChart<T, BarData, "label", "value", BarConfi
         super(rawData, dataMapper, barConfig, drawConfig);
 
         this.render();
+
+        this.chartConfig.eventHandler?.addEventHandler((ev, label) => {
+            switch(ev) {
+                case "hover":
+                    this.ctx.selectAll(`.bar-${label}`)
+                        .classed("highlight", true);
+                    break;
+                case "unhover":
+                    this.ctx.selectAll(`.bar-${label}`)
+                        .classed("highlight", false);
+                    break;
+            }
+        });
     }
 
     public render() {
         const barSel = this.ctx.selectAll(".bar").data(this.data).join("rect")
-            .attr("class", "bar data-element")
+            .attr("class", (d) => `bar data-element bar-${d.label}`)
             .attr("x", (d) => this.xScale(d.label)!)
             .attr("y", (d) => this.yScale(d.value))
             .attr("width", this.xScale.bandwidth())
@@ -81,7 +95,9 @@ class BarChart<T> extends AbstractXYChart<T, BarData, "label", "value", BarConfi
             .on("click", (ev: MouseEvent, d) => {
                 ev.stopPropagation();
                 this.chartConfig.onDataSelect?.(d);
-            });
+            })
+            .on("mouseover", (_ev, d) => this.chartConfig.eventHandler?.emit("hover", d.label))
+            .on("mouseout", (_ev, d) => this.chartConfig.eventHandler?.emit("unhover", d.label));
         enableTooltip(barSel, (d) => d.tooltip);
     }
 }
@@ -135,6 +151,19 @@ class HorizontalBarChart<T> extends AbstractXYChart<T, BarData, "value", "label"
 
         this.renderAxes();
         this.render();
+
+        this.chartConfig.eventHandler?.addEventHandler((ev, label) => {
+            switch(ev) {
+                case "hover":
+                    this.ctx.selectAll(`.bar-${label}`)
+                        .classed("highlight", true);
+                    break;
+                case "unhover":
+                    this.ctx.selectAll(`.bar-${label}`)
+                        .classed("highlight", false);
+                    break;
+            }
+        });
     }
 
     public render() {
@@ -148,7 +177,9 @@ class HorizontalBarChart<T> extends AbstractXYChart<T, BarData, "value", "label"
             .on("click", (ev: MouseEvent, d) => {
                 ev.stopPropagation();
                 this.chartConfig.onDataSelect?.(d);
-            });
+            })
+            .on("mouseover", (_ev, d) => this.chartConfig.eventHandler?.emit("hover", d.label))
+            .on("mouseout", (_ev, d) => this.chartConfig.eventHandler?.emit("unhover", d.label));
         enableTooltip(barSel, (d) => d.tooltip);
 
         this.renderUnknown();
