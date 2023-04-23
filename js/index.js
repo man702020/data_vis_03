@@ -212,29 +212,46 @@ function visualizeData(data) {
     });
     console.timeEnd("cloud");
     visualizations.push(wordCloud);
-    const treeCloud = new DirectedChord(data, (data) => {
+    const treeCloud = new DirectedChord(data, accumulateMapper((acc, ep) => {
+        for (const line of ep.transcript) {
+            if (!IMPORTANT_CHARACTERS.includes(line.speaker)) {
+                continue;
+            }
+            for (const maybeTo of IMPORTANT_CHARACTERS) {
+                if (line.text.includes(maybeTo)) {
+                    if (!(line.speaker in acc)) {
+                        acc[line.speaker] = {};
+                    }
+                    if (!(maybeTo in acc[line.speaker])) {
+                        acc[line.speaker][maybeTo] = 0;
+                    }
+                    acc[line.speaker][maybeTo]++;
+                }
+            }
+        }
+        return acc;
+    }, () => ({}), (acc) => {
+        const data = [];
+        for (const [from, to_obj] of Object.entries(acc)) {
+            for (const [to, value] of Object.entries(to_obj)) {
+                data.push({
+                    from, to, value
+                });
+            }
+        }
         return {
-            data: [
-                { from: 'Korra', to: 'Tenzin', value: 5 },
-                { from: 'Lin', to: 'Jinora', value: 5 },
-                { from: 'Tarrlok', to: 'Toph', value: 5 },
-                { from: 'Toph', to: 'Bolin', value: 5 },
-                { from: 'Jinora', to: 'Mako', value: 5 },
-                { from: 'Iroh', to: 'Mako', value: 5 },
-                { from: 'Mako', to: 'Bolin', value: 5 },
-                { from: 'Bolin', to: 'Tenzin', value: 5 },
-                { from: 'Asami', to: 'Jinora', value: 5 },
-                { from: 'Suyin', to: 'Asami', value: 5 },
-                { from: 'Kuvira', to: 'Bolin', value: 5 },
-            ],
+            data,
             unknownCount: 0
         };
-    }, {}, {
+    }), {
+        title: "Character Mentions"
+    }, {
         parent: '#right-chart-container',
         width: 600,
         height: 600,
-        margin: { top: 30, bottom: 5, right: 10, left: 20 }
+        margin: { top: 50, bottom: 5, right: 50, left: 50 }
     });
+    visualizations.push(treeCloud);
     d3.select("#loader").remove();
 }
 //# sourceMappingURL=index.js.map

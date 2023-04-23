@@ -60,20 +60,21 @@ class DirectedChord extends AbstractVisualization {
             .attr("d", this.ribbon)
             .attr("fill", d => this.colorScheme[d.target.index])
             .style("mix-blend-mode", "multiply");
-        this.ctx.selectAll(".chord-group").data(chords.groups).join("g")
+        const groups = this.ctx.selectAll(".chord-group").data(chords.groups).join("g")
             .attr("class", "chord-group")
             .attr("font-family", "sans-serif")
             .attr("font-size", 10)
-            .call(g => g.append("path")
-            .attr("d", this.arc)
-            .attr("fill", d => this.colorScheme[d.index])
-            .attr("stroke", "#fff"))
-            .call(g => g.append("text")
-            .attr("dy", -3)
-            .append("textPath")
-            .attr("xlink:href", "#chord-text-path")
-            .attr("startOffset", d => d.startAngle * this.outerRadius)
-            .text(d => objects[d.index]));
+            .html((d) => `
+                <path d="${this.arc(d)}" fill="${this.colorScheme[d.index]}" stroke="white"/>
+                <text dy="-3">
+                    <textPath
+                        xlink:href="#chord-text-path"
+                        startOffset="${(d.startAngle + d.endAngle) / 2 * this.outerRadius - objects[d.index].length * 2.5}"
+                    >
+                        ${objects[d.index]}
+                    </textPath>
+                </text>
+            `);
     }
 }
 //# sourceMappingURL=DirectedChord.js.map

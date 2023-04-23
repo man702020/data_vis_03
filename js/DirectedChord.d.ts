@@ -1,14 +1,14 @@
-interface TreeConfig extends VisualizationConfig<TreeData> {
+interface ChordConfig extends VisualizationConfig<ChordData> {
     title?: string;
 }
-interface TreeData {
+interface ChordData {
     from: string;
     to: string;
     value: number;
 }
-declare class DirectedChord<T> extends AbstractVisualization<T, TreeData, TreeConfig> {
-    protected dataMapper: DataMapperFn<T, TreeData>;
-    protected chartConfig: TreeConfig;
+declare class DirectedChord<T> extends AbstractVisualization<T, ChordData, ChordConfig> {
+    protected dataMapper: DataMapperFn<T, ChordData>;
+    protected chartConfig: ChordConfig;
     protected drawConfig: DrawConfig;
     protected svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
     protected ctx: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
@@ -20,7 +20,7 @@ declare class DirectedChord<T> extends AbstractVisualization<T, TreeData, TreeCo
     readonly innerRadius: number;
     readonly outerRadius: number;
     protected colorScheme: string[];
-    constructor(rawData: T[], dataMapper: DataMapperFn<T, TreeData>, chartConfig: TreeConfig, drawConfig: DrawConfig);
+    constructor(rawData: T[], dataMapper: DataMapperFn<T, ChordData>, chartConfig: ChordConfig, drawConfig: DrawConfig);
     render(): void;
 }
 //# sourceMappingURL=DirectedChord.d.ts.map

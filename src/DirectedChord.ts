@@ -1,16 +1,16 @@
 
 
 
-interface TreeConfig extends VisualizationConfig<TreeData> {
+interface ChordConfig extends VisualizationConfig<ChordData> {
     title?: string;
 }
-interface TreeData {
+interface ChordData {
     from: string;
     to: string;
     value: number;
 }
 
-class DirectedChord<T> extends AbstractVisualization<T, TreeData, TreeConfig>
+class DirectedChord<T> extends AbstractVisualization<T, ChordData, ChordConfig>
 {
     protected svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
     protected ctx: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
@@ -30,8 +30,8 @@ class DirectedChord<T> extends AbstractVisualization<T, TreeData, TreeConfig>
 
     public constructor(
         rawData: T[],
-        protected dataMapper: DataMapperFn<T, TreeData>,
-        protected chartConfig: TreeConfig,
+        protected dataMapper: DataMapperFn<T, ChordData>,
+        protected chartConfig: ChordConfig,
         protected drawConfig: DrawConfig,
     ) {
         super();
@@ -101,20 +101,21 @@ class DirectedChord<T> extends AbstractVisualization<T, TreeData, TreeConfig>
             .style("mix-blend-mode", "multiply");
 
 
-        this.ctx.selectAll(".chord-group").data(chords.groups).join("g")
+        const groups = this.ctx.selectAll(".chord-group").data(chords.groups).join("g")
             .attr("class", "chord-group")
             .attr("font-family", "sans-serif")
             .attr("font-size", 10)
-            .call(g => g.append("path")
-                .attr("d", this.arc)
-                .attr("fill", d => this.colorScheme[d.index])
-                .attr("stroke", "#fff"))
-            .call(g => g.append("text")
-                .attr("dy", -3)
-            .append("textPath")
-                .attr("xlink:href", "#chord-text-path")
-                .attr("startOffset", d => d.startAngle * this.outerRadius)
-                .text(d => objects[d.index]))
+            .html((d) => `
+                <path d="${this.arc(d)}" fill="${this.colorScheme[d.index]}" stroke="white"/>
+                <text dy="-3">
+                    <textPath
+                        xlink:href="#chord-text-path"
+                        startOffset="${(d.startAngle + d.endAngle) / 2 * this.outerRadius - objects[d.index].length * 2.5}"
+                    >
+                        ${objects[d.index]}
+                    </textPath>
+                </text>
+            `);
     }
  }
 
