@@ -20,18 +20,18 @@ const EPISODE_COLOR_MAP = [
     ...new Array(13).fill(SEASON_COLORS[3]),
 ];
 const CHARACTER_COLOR_MAP = {
-    "Korra": "#8dd3c7",
-    "Lin": "#ffffb3",
-    "Tarrlok": "#bebada",
-    "Toph": "#fb8072",
-    "Tenzin": "#80b1d3",
-    "Jinora": "#fdb462",
-    "Iroh": "#b3de69",
-    "Mako": "#fccde5",
-    "Bolin": "#d9d9d9",
-    "Asami": "#bc80bd",
-    "Suyin": "#ccebc5",
-    "Kuvira": "#ffed6f",
+    "Korra": d3.schemeCategory10[0],
+    "Lin": d3.schemeCategory10[1],
+    "Tarrlok": d3.schemeCategory10[2],
+    "Toph": d3.schemeCategory10[3],
+    "Tenzin": d3.schemeCategory10[4],
+    "Jinora": d3.schemeCategory10[5],
+    "Iroh": d3.schemeCategory10[6],
+    "Mako": d3.schemeCategory10[7],
+    "Bolin": d3.schemeCategory10[8],
+    "Asami": d3.schemeCategory10[9],
+    "Suyin": d3.schemePaired[9],
+    "Kuvira": d3.schemeSet1[6],
 };
 const IMPORTANT_CHARACTERS = Object.keys(CHARACTER_COLOR_MAP);
 const filterBtnIds = [
@@ -94,6 +94,7 @@ function visualizeData(data) {
         width: 300,
         margin: { top: 50, right: 10, bottom: 50, left: 60 }
     });
+    visualizations.push(episodesPerSeason);
     const linesPerCharacter = new BarChart(data, accumulateMapper((acc, ep) => {
         for (const line of ep.transcript) {
             if (!IMPORTANT_CHARACTERS.includes(line.speaker)) {
@@ -181,15 +182,13 @@ function visualizeData(data) {
         xAxisLabel: "Episode",
         yAxisLabel: "Lines",
         eventHandler: characterEventHandler
-        // onMouseOver: (d) => console.log(`Mouse Over ${d.label}`)
     }, {
         parent: "#right-chart-container",
         className: "col-12",
-        height: 400,
-        width: 1000,
+        height: 250,
+        width: 700,
         margin: { top: 50, right: 100, bottom: 50, left: 90 }
     });
-    visualizations.push(episodesPerSeason);
     console.time("cloud");
     const wordCloud = new WordMap(data, accumulateMapper((acc, season) => {
         for (const word in season.words) {
@@ -244,7 +243,8 @@ function visualizeData(data) {
             unknownCount: 0
         };
     }), {
-        title: "Character Mentions"
+        title: "Character Mentions",
+        colorMap: CHARACTER_COLOR_MAP
     }, {
         parent: '#right-chart-container',
         width: 600,

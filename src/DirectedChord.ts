@@ -3,6 +3,8 @@
 
 interface ChordConfig extends VisualizationConfig<ChordData> {
     title?: string;
+
+    colorMap: Record<string, string>;
 }
 interface ChordData {
     from: string;
@@ -25,7 +27,7 @@ class DirectedChord<T> extends AbstractVisualization<T, ChordData, ChordConfig>
     public readonly innerRadius: number;
     public readonly outerRadius: number;
 
-    protected colorScheme = ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"];
+    // protected colorScheme = ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"];
 
 
     public constructor(
@@ -97,7 +99,7 @@ class DirectedChord<T> extends AbstractVisualization<T, ChordData, ChordConfig>
         this.ctx.selectAll(".chord").data(chords).join("path")
             .attr("class", "chord")
             .attr("d", this.ribbon)
-            .attr("fill", d => this.colorScheme[d.target.index])
+            .attr("fill", d => this.chartConfig.colorMap[objects[d.target.index]])
             .style("mix-blend-mode", "multiply");
 
 
@@ -106,7 +108,7 @@ class DirectedChord<T> extends AbstractVisualization<T, ChordData, ChordConfig>
             .attr("font-family", "sans-serif")
             .attr("font-size", 10)
             .html((d) => `
-                <path d="${this.arc(d)}" fill="${this.colorScheme[d.index]}" stroke="white"/>
+                <path d="${this.arc(d)}" fill="${this.chartConfig.colorMap[objects[d.index]]}" stroke="white"/>
                 <text dy="-3">
                     <textPath
                         xlink:href="#chord-text-path"

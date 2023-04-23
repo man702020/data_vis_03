@@ -1,11 +1,11 @@
 "use strict";
 class DirectedChord extends AbstractVisualization {
+    // protected colorScheme = ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"];
     constructor(rawData, dataMapper, chartConfig, drawConfig) {
         super();
         this.dataMapper = dataMapper;
         this.chartConfig = chartConfig;
         this.drawConfig = drawConfig;
-        this.colorScheme = ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"];
         this.margin = drawConfig.margin || { top: 0, bottom: 0, left: 0, right: 0 };
         this.svg = createSVG(drawConfig);
         this.ctx = this.svg.append("g")
@@ -58,14 +58,14 @@ class DirectedChord extends AbstractVisualization {
         this.ctx.selectAll(".chord").data(chords).join("path")
             .attr("class", "chord")
             .attr("d", this.ribbon)
-            .attr("fill", d => this.colorScheme[d.target.index])
+            .attr("fill", d => this.chartConfig.colorMap[objects[d.target.index]])
             .style("mix-blend-mode", "multiply");
         const groups = this.ctx.selectAll(".chord-group").data(chords.groups).join("g")
             .attr("class", "chord-group")
             .attr("font-family", "sans-serif")
             .attr("font-size", 10)
             .html((d) => `
-                <path d="${this.arc(d)}" fill="${this.colorScheme[d.index]}" stroke="white"/>
+                <path d="${this.arc(d)}" fill="${this.chartConfig.colorMap[objects[d.index]]}" stroke="white"/>
                 <text dy="-3">
                     <textPath
                         xlink:href="#chord-text-path"

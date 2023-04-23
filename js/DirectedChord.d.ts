@@ -1,5 +1,6 @@
 interface ChordConfig extends VisualizationConfig<ChordData> {
     title?: string;
+    colorMap: Record<string, string>;
 }
 interface ChordData {
     from: string;
@@ -19,7 +20,6 @@ declare class DirectedChord<T> extends AbstractVisualization<T, ChordData, Chord
     protected arc: d3.Arc<any, d3.ChordGroup>;
     readonly innerRadius: number;
     readonly outerRadius: number;
-    protected colorScheme: string[];
     constructor(rawData: T[], dataMapper: DataMapperFn<T, ChordData>, chartConfig: ChordConfig, drawConfig: DrawConfig);
     render(): void;
 }
