@@ -201,18 +201,43 @@ function visualizeData(data: KorraEpisode[]) {
         labelSort: (a,b) =>parseInt(a)-parseInt(b),
         //colorScheme: scheme3
     }, {
-            parent: "#timeline-container",
+            parent: "#big-chart-container",
             width: 1000,
             height: 150,
             margin: { top: 50, left: 100, bottom: 50, right: 50 }
         }
     );
 
-    const wordCloud = new Wordmap({
-         parent: '#wordmap',
-         height: 500,
-         width: 300
-    }, data);
+    const wordCloud = new WordMap(
+        data,
+        accumulateMapper(
+            (acc, ep) => {
+                for(const line of ep.transcript) {
+                    for(const word of line.text.toLowerCase().split(/[;:!?,\s\/\.“"\-—()[\]{}]+/)) {
+                        if(!word || COMMON_WORDS.has(word)) { continue; }
+                        if(word in acc) {
+                            acc[word]++;
+                        } else {
+                            acc[word] = 1;
+                        }
+                    }
+                }
+                return acc;
+            },
+            {} as Record<string, number>,
+            (obj) => ({
+                data: Object.entries(obj).map(([text, value]) => ({ text, value })),
+                unknownCount: 0
+            })
+        ),
+        {},
+        {
+            parent: '#big-chart-container',
+            height: 400,
+            width: 800
+        }
+    );
+
 
 
     d3.select("#loader").remove();
