@@ -41,6 +41,11 @@ function visualizeData(data: KorraEpisode[]) {
     //     rerenderData()
     // }
 
+    const characterEventHandler = new CharacterEventHandler();
+    characterEventHandler.addEventHandler((ev, ch) => {
+        console.log(ev, ch);
+    })
+
 
 
     const episodesPerSeason = new BarChart(
@@ -60,6 +65,91 @@ function visualizeData(data: KorraEpisode[]) {
             height: 200,
             width: 500,
             margin: { top: 50, right: 50, bottom: 50, left: 80 }
+        }
+    );
+
+    const characterLines = data.reduce((acc, ep) => {
+        for(const line of ep.transcript) {
+            if(line.speaker in acc) {
+                acc[line.speaker]++;
+            } else {
+                acc[line.speaker] = 1;
+            }
+        }
+        return acc;
+    }, {  } as Record<string, number>);
+    const topTenCharacterLines = Object.entries(characterLines).sort((a, b) => b[1] - a[1]).slice(0, 10);
+    const topTenCharacters = topTenCharacterLines.map(([ speaker, _ ]) => speaker);
+    const characterColors: Record<string, string> = {};
+    topTenCharacters.forEach((name, i) => {
+        characterColors[name] = d3.schemeCategory10[i]
+    });
+
+    const linesPerCharacter = new BarChart(
+        topTenCharacterLines,
+        elementMapper(
+            ([ speaker, lines]) => ({ label: speaker, value: lines, color: characterColors[speaker] })
+        ),
+        {
+            xAxisLabel: "Character",
+            yAxisLabel: "Lines",
+            labelOrder: topTenCharacters,
+            eventHandler: characterEventHandler
+        },
+        {
+            parent: "#chart-container",
+            className: "col-12",
+            height: 200,
+            width: 500,
+            margin: { top: 50, right: 50, bottom: 50, left: 100 }
+        }
+    )
+
+    const linesPerEpisode = new MultiLineChart(
+        data,
+        accumulateMapper(
+            (acc, ep) => {
+                const epLines = {} as Record<string, number>;
+                for(const line of ep.transcript) {
+                    if(!topTenCharacters.includes(line.speaker)) { continue; }
+                    if(line.speaker in epLines) {
+                        epLines[line.speaker]++;
+                    } else {
+                        epLines[line.speaker] = 1;
+                    }
+                }
+
+                for(const speaker in epLines) {
+                    if(speaker in acc) {
+                        acc[speaker].values.push({ x: ep.abs_episode, y: epLines[speaker] });
+                    } else {
+                        acc[speaker] = {
+                            label: speaker,
+                            color: characterColors[speaker],
+                            values: [
+                                { x: ep.abs_episode, y: epLines[speaker] }
+                            ]
+                        }
+                    }
+                }
+                return acc;
+            },
+            {} as Record<string, Series>,
+            (data) => ({ data: Object.values(data), unknownCount: 0 })
+        ),
+        {
+            title: "Character Lines per Episode",
+            xAxisLabel: "Episode",
+            yAxisLabel: "Lines",
+            eventHandler: characterEventHandler
+            // onMouseOver: (d) => console.log(`Mouse Over ${d.label}`)
+        },
+        {
+            parent: "#big-chart-container",
+            className: "col-12",
+            height: 400,
+            width: 1000,
+            margin: { top: 50, right: 100, bottom: 50, left: 90 }
         }
     )
 

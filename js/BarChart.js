@@ -24,12 +24,25 @@ class BarChart extends AbstractXYChart {
         this.renderAxes(this.xScale.bandwidth());
     }
     constructor(rawData, dataMapper, barConfig, drawConfig) {
+        var _a;
         super(rawData, dataMapper, barConfig, drawConfig);
         this.render();
+        (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.addEventHandler((ev, label) => {
+            switch (ev) {
+                case "hover":
+                    this.ctx.selectAll(`.bar-${label}`)
+                        .classed("highlight", true);
+                    break;
+                case "unhover":
+                    this.ctx.selectAll(`.bar-${label}`)
+                        .classed("highlight", false);
+                    break;
+            }
+        });
     }
     render() {
         const barSel = this.ctx.selectAll(".bar").data(this.data).join("rect")
-            .attr("class", "bar data-element")
+            .attr("class", (d) => `bar data-element bar-${d.label}`)
             .attr("x", (d) => this.xScale(d.label))
             .attr("y", (d) => this.yScale(d.value))
             .attr("width", this.xScale.bandwidth())
@@ -39,7 +52,9 @@ class BarChart extends AbstractXYChart {
             var _a, _b;
             ev.stopPropagation();
             (_b = (_a = this.chartConfig).onDataSelect) === null || _b === void 0 ? void 0 : _b.call(_a, d);
-        });
+        })
+            .on("mouseover", (_ev, d) => { var _a; return (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.emit("hover", d.label); })
+            .on("mouseout", (_ev, d) => { var _a; return (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.emit("unhover", d.label); });
         enableTooltip(barSel, (d) => d.tooltip);
     }
 }
@@ -53,6 +68,7 @@ class HorizontalBarChart extends AbstractXYChart {
         this.data.sort(sortFn);
     }
     constructor(rawData, dataMapper, barConfig, drawConfig) {
+        var _a;
         super(rawData, dataMapper, barConfig, drawConfig);
         const xDomain = [0, d3.max(this.data, ({ value }) => value)];
         const yDomain = this.data.map(({ label }) => label);
@@ -70,6 +86,18 @@ class HorizontalBarChart extends AbstractXYChart {
         this.yAxis = d3.axisLeft(this.yScale);
         this.renderAxes();
         this.render();
+        (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.addEventHandler((ev, label) => {
+            switch (ev) {
+                case "hover":
+                    this.ctx.selectAll(`.bar-${label}`)
+                        .classed("highlight", true);
+                    break;
+                case "unhover":
+                    this.ctx.selectAll(`.bar-${label}`)
+                        .classed("highlight", false);
+                    break;
+            }
+        });
     }
     render() {
         const barSel = this.ctx.selectAll(".bar").data(this.data).join("rect")
@@ -83,7 +111,9 @@ class HorizontalBarChart extends AbstractXYChart {
             var _a, _b;
             ev.stopPropagation();
             (_b = (_a = this.chartConfig).onDataSelect) === null || _b === void 0 ? void 0 : _b.call(_a, d);
-        });
+        })
+            .on("mouseover", (_ev, d) => { var _a; return (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.emit("hover", d.label); })
+            .on("mouseout", (_ev, d) => { var _a; return (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.emit("unhover", d.label); });
         enableTooltip(barSel, (d) => d.tooltip);
         this.renderUnknown();
     }
