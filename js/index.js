@@ -1,10 +1,25 @@
 "use strict";
-d3.json("data/data.json")
-    .then((rawData) => {
-    const data = rawData;
+function parseCharacter(row) {
+    return {
+        Name: row.name,
+        Url: row.url,
+        Image_Url: row.imageUrl
+    };
+}
+// helpers
+function isMatch(searchOnString, searchText) {
+    searchText = searchText.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    return searchOnString.match(new RegExp("\\b" + searchText + "\\b", "i")) != null;
+}
+Promise.all([
+    d3.json('data/data.json'),
+    d3.csv('data/KorraCharacters.csv')
+])
+    .then(([epData, charData]) => {
+    const data = epData;
     console.log(`Data loading complete: ${data.episodes.length} episodes.`);
     console.log("Example:", data.episodes[0]);
-    return visualizeData(data.episodes);
+    return visualizeData(data.episodes, charData.map(parseCharacter));
 })
     .catch(err => {
     console.error("Error loading the data");
@@ -40,17 +55,77 @@ const filterBtnIds = [
     "#btn-filter-s3",
     "#btn-filter-s4",
 ];
-function visualizeData(data) {
+function visualizeData(data, charData) {
     const visualizations = [];
+    const findCharacterData = (name) => {
+        let foundChar = charData.find(d => d.Name.toLowerCase() === name);
+        if (foundChar == undefined) {
+            //console.log("Trying again for",name);
+            // Try secondary finding?
+            foundChar = charData.find(d => isMatch(d.Name.toLowerCase(), name));
+            if (foundChar) {
+                //console.log("Found second time",foundChar,name)
+            }
+        }
+        return foundChar;
+    };
+    const getCharacterTooltip = (name, label, value) => {
+        var lowerName = name.toLowerCase();
+        var charData = findCharacterData(lowerName);
+        var image = charData === null || charData === void 0 ? void 0 : charData.Image_Url; // Might not exist
+        var url = charData === null || charData === void 0 ? void 0 : charData.Url; // Unused due to difficulty
+        var output = `
+                        <div class='charBox'><b>${name}</b> </div>
+                        <br>
+                        <ul>
+                        <li><b>${label}:</b> ${value}</li>
+                        </ul>
+                    `;
+        if (charData != undefined) {
+            output = `
+                        <div class='charBox'>
+                        <img src="${image}", width="80" height="65">
+                        </div>
+                        <b>${name}</b>
+                        <br>
+                        <b>${label}:</b> ${value}
+                        `;
+        }
+        return output;
+    };
+    const getCharactersInData = (data) => {
+        //console.log("Grabbing characters in selected episode set",data)
+        let all_names = new Set();
+        let all_characters = new Array();
+        for (const episode of data) {
+            episode.transcript.forEach(line => {
+                all_names.add(line.speaker);
+            });
+        }
+        for (const name of all_names) {
+            let characterData = findCharacterData(name);
+            let exists = all_characters.find(d => d.Name === (characterData === null || characterData === void 0 ? void 0 : characterData.Name)); // removes dupes
+            if (characterData != undefined && !exists) {
+                all_characters.push(characterData);
+            }
+        }
+        return all_characters;
+    };
+    let charactersInData = getCharactersInData(data); // UPDATE THIS WITH NEW DATA SELECTION
     function clearFilters() {
         visualizations.forEach((v) => {
+            charactersInData = getCharactersInData(data);
             v.setData(data);
             v.render();
+            updateCharTable(charactersInData);
         });
     }
     const filterSeasonData = (season) => {
         visualizations.forEach((v) => {
-            v.setData(data.filter((d) => d.season === season));
+            let filteredData = data.filter((d) => d.season === season);
+            v.setData(filteredData);
+            charactersInData = getCharactersInData(filteredData); // separates the filter process and manually sends new data to table.
+            updateCharTable(charactersInData);
             v.render();
         });
     };
@@ -81,8 +156,84 @@ function visualizeData(data) {
     filterBtnIds.forEach((id, idx) => {
         d3.select(id).on("click", () => setSeasonFilter(idx + 1));
     });
+    // Table updating
+    const charSortCharacterTable = (data, character) => {
+        let all_characters = new Array();
+        all_characters.push(character); // prefills selected character to top of array
+        for (const characterData of data) {
+            let exists = all_characters.find(d => d.Name === (characterData === null || characterData === void 0 ? void 0 : characterData.Name)); // removes dupes and pushes rest of data
+            if (characterData != undefined && !exists) {
+                all_characters.push(characterData);
+            }
+            else {
+                //console.log("already there",characterData.Name)
+            }
+        }
+        return all_characters;
+    };
+    const boldCharTable = (char, bold) => {
+        let name = char.Name;
+        let tableSelect = Array.from(document.getElementsByClassName(`tbl-${name}`));
+        for (let i = 0; i < tableSelect.length; i++) {
+            let element = tableSelect[i];
+            if (bold) {
+                element.style.fontWeight = "bold";
+            }
+            else {
+                element.style.fontWeight = "normal";
+            }
+        }
+        ;
+    };
+    const updateCharTable = (charData) => {
+        const num_colums = 4; // number of columns in the row
+        let table = '<table>';
+        // returns all characters found in selected data transcript
+        table += `<tr><th>Characters: ${charData.length}</th>`;
+        for (let charIndex = 0; charIndex < charData.length; charIndex += num_colums) {
+            table = table + `<tr>`;
+            for (let char_section = 0; char_section < num_colums; char_section++) {
+                //console.log(char_section,charIndex + char_section);
+                let character = charData[charIndex + char_section];
+                if (character) {
+                    table = table + `<td class= 'tbl-${character.Name}'> <img src="${character.Image_Url}", width="45" height="40"></td>`;
+                    table = table + `<td class='tbl-${character.Name}' >${character.Name}</td>`;
+                    table = table + `<td class='tbl-${character.Name}' ><a href='${character.Url}'> Details</a></td>  `;
+                }
+                else {
+                    //console.log("Could not find character",charIndex,char_section)
+                }
+            }
+            table += `</tr>`;
+        }
+        ;
+        table += "</table>";
+        let tablePlace = document.getElementById("characterTable");
+        if (tablePlace) {
+            tablePlace.innerHTML = table;
+        }
+    };
+    updateCharTable(charactersInData); // Pass in episodes
     /** Used to dispatch character hover events to all visualizations */
     const characterEventHandler = new CharacterEventHandler();
+    characterEventHandler.addEventHandler((ev, ch) => {
+        //console.log(ev, ch);
+        let eventChar = findCharacterData(ch);
+        switch (ev) {
+            case "hover":
+                if (eventChar) {
+                    charactersInData = charSortCharacterTable(charactersInData, eventChar);
+                    updateCharTable(charactersInData);
+                    boldCharTable(eventChar, true);
+                }
+                break;
+            case "unhover":
+                if (eventChar) { // unbold
+                    boldCharTable(eventChar, false);
+                }
+                break;
+        }
+    });
     const episodesPerSeason = new BarChart(data, aggregateMapper((d) => d.season.toString(), (b, c) => ({ label: b, value: c, tooltip: `${c} Episodes`, color: SEASON_COLORS[parseInt(b) - 1] })), {
         xAxisLabel: "Season",
         yAxisLabel: "Episodes",
@@ -111,7 +262,7 @@ function visualizeData(data) {
     }, () => ({}), (characterLines) => {
         return {
             data: Object.entries(characterLines).sort((a, b) => b[1] - a[1]).map(([speaker, lines]) => ({
-                label: speaker, value: lines, color: CHARACTER_COLOR_MAP[speaker]
+                label: speaker, value: lines, color: CHARACTER_COLOR_MAP[speaker], tooltip: getCharacterTooltip(speaker, `Total Lines`, lines)
             })),
             unknownCount: 0
         };
@@ -121,7 +272,7 @@ function visualizeData(data) {
         sort: (a, b) => b.value - a.value,
         eventHandler: characterEventHandler,
         padding: 0.2,
-        xTickRotate: -45
+        xTickRotate: -45,
     }, {
         parent: "#left-chart-container",
         className: "col-6",
@@ -136,7 +287,8 @@ function visualizeData(data) {
         return {
             label,
             value,
-            tooltip: `s${padNumber(d.season, 2)}e${padNumber(d.episode, 2)} Lines: ${value}`, color: EPISODE_COLOR_MAP[d.abs_episode - 1]
+            tooltip: `s${padNumber(d.season, 2)}e${padNumber(d.episode, 2)} Lines: ${value}`,
+            color: EPISODE_COLOR_MAP[d.abs_episode - 1],
         };
     }), {
         xAxisLabel: "Total number of Episode",
@@ -181,7 +333,8 @@ function visualizeData(data) {
         title: "Character Lines per Episode",
         xAxisLabel: "Episode",
         yAxisLabel: "Lines",
-        eventHandler: characterEventHandler
+        eventHandler: characterEventHandler,
+        tooltipFn: (d) => getCharacterTooltip(d.series.label, `Lines in Episode ${d.x}`, d.y)
     }, {
         parent: "#right-chart-container",
         className: "col-12",

@@ -4,6 +4,8 @@
 interface LineConfig extends XYChartConfig<Point2D, number, number> {
     xScale?: "linear" | "log";
     yScale?: "linear" | "log";
+    tooltipFn?: (d:Point2D&{series:Series}) => string;
+
 }
 
 class LineChart<T> extends AbstractXYChart<T, Point2D, "x", "y", LineConfig>
@@ -78,7 +80,7 @@ interface MultiLineConfig extends ChartConfig<Series> {
     xTickFormat?: (d: number) => string;
     yAxisLabel: string;
     yTickFormat?: (d: number) => string;
-
+    tooltipFn?: (d:Point2D&{series:Series}) => string;
     colorScheme?: readonly string[];
     eventHandler?: CharacterEventHandler;
 
@@ -246,13 +248,15 @@ class MultiLineChart<T> extends AbstractChart<T, Series, MultiLineConfig>
             .attr("fill", "none")
             .on("mouseover", (_, d) => this.chartConfig.eventHandler?.emit("hover", d.label))
             .on("mouseout", (_, d) => this.chartConfig.eventHandler?.emit("unhover", d.label));
-        layers.selectAll("line-plot-marker").data((d) => d.values.map((p) => ({ ...p, series: d }))).join("circle")
-            .attr("class", (d) => `line-plot-marker line-plot-marker-${d.series.label}`)
+            const markers = layers.selectAll("line-plot-marker").data((d) => d.values.map((p) => ({ ...p, series: d }))).join("circle")            .attr("class", (d) => `line-plot-marker line-plot-marker-${d.series.label}`)
             .attr("cx", (d) => this.xScale(d.x))
             .attr("cy", (d) => this.yScale(d.y))
             .attr("r", (d) => d.series.bold ? 5 : 3)
             .attr("fill", (d) => d.series.color || "#000")
             .on("mouseover", (_, d) => this.chartConfig.eventHandler?.emit("hover", d.series.label))
             .on("mouseout", (_, d) => this.chartConfig.eventHandler?.emit("unhover", d.series.label));
+        if (this.chartConfig.tooltipFn) {
+            enableTooltip(markers, this.chartConfig.tooltipFn);
+        }
     }
 }
