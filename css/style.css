@@ -34,6 +34,17 @@
     color: #888;
 }
 
+.charBox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    align-content: center;
+  }
+  table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
 
 .line-plot-layer.highlight > .line-plot-marker {
     r: 5px;
@@ -51,3 +62,4 @@
 .legend-entry.highlight > text {
     font-weight: bold;
 }
+

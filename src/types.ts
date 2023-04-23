@@ -12,7 +12,11 @@ interface KorraEpisode {
     transcript: TranscriptLine[];
 }
 
-
+interface KorraCharacterData {
+    Name: string;
+    Url: string;
+    Image_Url?: string;
+}
 
 interface Margin {
     top: number;
