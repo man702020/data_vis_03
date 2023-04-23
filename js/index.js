@@ -212,6 +212,29 @@ function visualizeData(data) {
     });
     console.timeEnd("cloud");
     visualizations.push(wordCloud);
+    const treeCloud = new DirectedChord(data, (data) => {
+        return {
+            data: [
+                { from: 'Korra', to: 'Tenzin', value: 5 },
+                { from: 'Lin', to: 'Jinora', value: 5 },
+                { from: 'Tarrlok', to: 'Toph', value: 5 },
+                { from: 'Toph', to: 'Bolin', value: 5 },
+                { from: 'Jinora', to: 'Mako', value: 5 },
+                { from: 'Iroh', to: 'Mako', value: 5 },
+                { from: 'Mako', to: 'Bolin', value: 5 },
+                { from: 'Bolin', to: 'Tenzin', value: 5 },
+                { from: 'Asami', to: 'Jinora', value: 5 },
+                { from: 'Suyin', to: 'Asami', value: 5 },
+                { from: 'Kuvira', to: 'Bolin', value: 5 },
+            ],
+            unknownCount: 0
+        };
+    }, {}, {
+        parent: '#right-chart-container',
+        width: 600,
+        height: 600,
+        margin: { top: 30, bottom: 5, right: 10, left: 20 }
+    });
     d3.select("#loader").remove();
 }
 //# sourceMappingURL=index.js.map
