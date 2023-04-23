@@ -64,45 +64,6 @@ const filterBtnIds = [
 ];
 function visualizeData(data, charData) {
     const visualizations = [];
-    function clearFilters() {
-        visualizations.forEach((v) => {
-            v.setData(data);
-            v.render();
-        });
-    }
-    const filterSeasonData = (season) => {
-        visualizations.forEach((v) => {
-            v.setData(data.filter((d) => d.season === season));
-            v.render();
-        });
-    };
-    let activeSeasonFilter = 0;
-    function setSeasonFilter(s) {
-        if (s === activeSeasonFilter) {
-            return;
-        }
-        activeSeasonFilter = s;
-        if (s === 0) {
-            clearFilters();
-            d3.select("#btn-filter-none")
-                .attr("class", "btn btn-secondary");
-            d3.selectAll(filterBtnIds.join(","))
-                .attr("class", "btn btn-outline-primary");
-        }
-        else {
-            filterSeasonData(s);
-            d3.select("#btn-filter-none")
-                .attr("class", "btn btn-outline-secondary");
-            d3.selectAll(filterBtnIds.join(","))
-                .attr("class", "btn btn-outline-primary");
-            d3.select(`#btn-filter-s${s}`)
-                .attr("class", "btn btn-primary");
-        }
-    }
-    d3.select("#btn-filter-none").on("click", () => setSeasonFilter(0));
-    filterBtnIds.forEach((id, idx) => {
-        d3.select(id).on("click", () => setSeasonFilter(idx + 1));
-    });
     const findCharacterData = (name) => {
         let foundChar = charData.find(d => d.Name.toLowerCase() === name);
         if (foundChar == undefined) {
@@ -158,6 +119,50 @@ function visualizeData(data, charData) {
         return all_characters;
     };
     let charactersInData = getCharactersInData(data); // UPDATE THIS WITH NEW DATA SELECTION
+    function clearFilters() {
+        visualizations.forEach((v) => {
+            charactersInData = getCharactersInData(data);
+            v.setData(data);
+            v.render();
+            updateCharTable(charactersInData);
+        });
+    }
+    const filterSeasonData = (season) => {
+        visualizations.forEach((v) => {
+            let filteredData = data.filter((d) => d.season === season);
+            v.setData(filteredData);
+            charactersInData = getCharactersInData(filteredData); // separates the filter process and manually sends new data to table.
+            updateCharTable(charactersInData);
+            v.render();
+        });
+    };
+    let activeSeasonFilter = 0;
+    function setSeasonFilter(s) {
+        if (s === activeSeasonFilter) {
+            return;
+        }
+        activeSeasonFilter = s;
+        if (s === 0) {
+            clearFilters();
+            d3.select("#btn-filter-none")
+                .attr("class", "btn btn-secondary");
+            d3.selectAll(filterBtnIds.join(","))
+                .attr("class", "btn btn-outline-primary");
+        }
+        else {
+            filterSeasonData(s);
+            d3.select("#btn-filter-none")
+                .attr("class", "btn btn-outline-secondary");
+            d3.selectAll(filterBtnIds.join(","))
+                .attr("class", "btn btn-outline-primary");
+            d3.select(`#btn-filter-s${s}`)
+                .attr("class", "btn btn-primary");
+        }
+    }
+    d3.select("#btn-filter-none").on("click", () => setSeasonFilter(0));
+    filterBtnIds.forEach((id, idx) => {
+        d3.select(id).on("click", () => setSeasonFilter(idx + 1));
+    });
     // Table updating
     const charSortCharacterTable = (data, character) => {
         let all_characters = new Array();
@@ -191,7 +196,7 @@ function visualizeData(data, charData) {
         const num_colums = 4; // number of columns in the row
         let table = '<table>';
         // returns all characters found in selected data transcript
-        table += `<tr><th>Characters</th>`;
+        table += `<tr><th>Characters: ${charData.length}</th>`;
         for (let charIndex = 0; charIndex < charData.length; charIndex += num_colums) {
             table = table + `<tr>`;
             for (let char_section = 0; char_section < num_colums; char_section++) {
