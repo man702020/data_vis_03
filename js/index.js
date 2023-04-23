@@ -237,7 +237,8 @@ function visualizeData(data, charData) {
     const episodesPerSeason = new BarChart(data, aggregateMapper((d) => d.season.toString(), (b, c) => ({ label: b, value: c, tooltip: `${c} Episodes`, color: SEASON_COLORS[parseInt(b) - 1] })), {
         xAxisLabel: "Season",
         yAxisLabel: "Episodes",
-        onDataSelect: (d) => setSeasonFilter(parseInt(d.label))
+        onDataSelect: (d) => setSeasonFilter(parseInt(d.label)),
+        title: "Number of Episodes per Season"
     }, {
         parent: "#left-chart-container",
         className: "col-6",
@@ -273,6 +274,7 @@ function visualizeData(data, charData) {
         eventHandler: characterEventHandler,
         padding: 0.2,
         xTickRotate: -45,
+        title: "Number of line per main character"
     }, {
         parent: "#left-chart-container",
         className: "col-6",
@@ -293,6 +295,7 @@ function visualizeData(data, charData) {
     }), {
         xAxisLabel: "Total number of Episode",
         yAxisLabel: "Number of Lines",
+        title: "Total Number of Line throughout the season",
         labelSort: (a, b) => parseInt(a) - parseInt(b),
         padding: 0.2
     }, {
