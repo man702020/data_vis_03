@@ -28,7 +28,6 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # Dialogue (varchar): Dialogue from character or action taken
 # Link (varchar): Link to transcript
 # ??Scene # (varchar): Potential scene numbers infered by the actions taken between dialogue
-
 # NOTE: You can ignore this above process since the other script was already created (leaving in just in case)
 FOUR_SEASON_LINKS = [
     { 'season': 1, 'url': "https://avatar.fandom.com/wiki/Book_One:_Air" },
