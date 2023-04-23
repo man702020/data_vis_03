@@ -55,6 +55,9 @@ class BarChart extends AbstractXYChart {
         })
             .on("mouseover", (_ev, d) => { var _a; return (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.emit("hover", d.label); })
             .on("mouseout", (_ev, d) => { var _a; return (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.emit("unhover", d.label); });
+        if (this.chartConfig.onDataSelect) {
+            barSel.style("cursor", "pointer");
+        }
         enableTooltip(barSel, (d) => d.tooltip);
     }
 }

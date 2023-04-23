@@ -35,6 +35,12 @@ const CHARACTER_COLOR_MAP = {
     "Kuvira": "#ffed6f",
 };
 const IMPORTANT_CHARACTERS = Object.keys(CHARACTER_COLOR_MAP);
+const filterBtnIds = [
+    "#btn-filter-s1",
+    "#btn-filter-s2",
+    "#btn-filter-s3",
+    "#btn-filter-s4",
+];
 function visualizeData(data) {
     const visualizations = [];
     const filterData = (newData) => {
@@ -43,40 +49,39 @@ function visualizeData(data) {
             v.render();
         });
     };
+    let activeSeasonFilter = 0;
     function setSeasonFilter(s) {
-        const filterBtnIds = [
-            "btn-filter-s1",
-            "btn-filter-s2",
-            "btn-filter-s3",
-            "btn-filter-s4",
-        ];
+        if (s === activeSeasonFilter) {
+            return;
+        }
+        activeSeasonFilter = s;
         if (s === 0) {
             filterData(data);
             d3.select("#btn-filter-none")
                 .attr("class", "btn btn-secondary");
-            d3.selectAll(filterBtnIds.map((id) => `#${id}`).join(","))
+            d3.selectAll(filterBtnIds.join(","))
                 .attr("class", "btn btn-outline-primary");
         }
         else {
             filterData(data.filter((d) => d.season === s));
             d3.select("#btn-filter-none")
                 .attr("class", "btn btn-outline-secondary");
-            d3.selectAll(filterBtnIds.map((id) => `#${id}`).join(","))
+            d3.selectAll(filterBtnIds.join(","))
                 .attr("class", "btn btn-outline-primary");
             d3.select(`#btn-filter-s${s}`)
                 .attr("class", "btn btn-primary");
         }
     }
-    d3.select("#btn-filter-s1").on("click", () => setSeasonFilter(1));
-    d3.select("#btn-filter-s2").on("click", () => setSeasonFilter(2));
-    d3.select("#btn-filter-s3").on("click", () => setSeasonFilter(3));
-    d3.select("#btn-filter-s4").on("click", () => setSeasonFilter(4));
     d3.select("#btn-filter-none").on("click", () => setSeasonFilter(0));
+    filterBtnIds.forEach((id, idx) => {
+        d3.select(id).on("click", () => setSeasonFilter(idx + 1));
+    });
     /** Used to dispatch character hover events to all visualizations */
     const characterEventHandler = new CharacterEventHandler();
     const episodesPerSeason = new BarChart(data, aggregateMapper((d) => d.season.toString(), (b, c) => ({ label: b, value: c, tooltip: `${c} Episodes`, color: SEASON_COLORS[parseInt(b) - 1] })), {
         xAxisLabel: "Season",
         yAxisLabel: "Episodes",
+        onDataSelect: (d) => setSeasonFilter(parseInt(d.label))
     }, {
         parent: "#chart-container",
         className: "col-12",

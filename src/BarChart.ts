@@ -98,6 +98,10 @@ class BarChart<T> extends AbstractXYChart<T, BarData, "label", "value", BarConfi
             })
             .on("mouseover", (_ev, d) => this.chartConfig.eventHandler?.emit("hover", d.label))
             .on("mouseout", (_ev, d) => this.chartConfig.eventHandler?.emit("unhover", d.label));
+
+        if(this.chartConfig.onDataSelect) {
+            barSel.style("cursor", "pointer");
+        }
         enableTooltip(barSel, (d) => d.tooltip);
     }
 }
