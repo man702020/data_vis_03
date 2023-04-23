@@ -3,6 +3,7 @@ interface CommonBarConfig {
     labelSort?: (a: string, b: string) => number;
     sort?: (a: BarData, b: BarData) => number;
     colorScheme?: readonly string[];
+    eventHandler?: CharacterEventHandler;
 }
 interface BarConfig extends CommonBarConfig, XYChartConfig<BarData, string, number> {
 }
