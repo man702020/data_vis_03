@@ -1,11 +1,10 @@
 "use strict";
-// d3.tsv('data/sampleData.tsv')
-d3.json('data/episodes.json')
+d3.json("data/data.json")
     .then((rawData) => {
     const data = rawData;
-    console.log(`Data loading complete: ${data.length} episodes.`);
-    console.log("Example:", data[0]);
-    return visualizeData(data);
+    console.log(`Data loading complete: ${data.episodes.length} episodes.`);
+    console.log("Example:", data.episodes[0]);
+    return visualizeData(data.episodes);
 })
     .catch(err => {
     console.error("Error loading the data");
@@ -43,9 +42,15 @@ const filterBtnIds = [
 ];
 function visualizeData(data) {
     const visualizations = [];
-    const filterData = (newData) => {
+    function clearFilters() {
         visualizations.forEach((v) => {
-            v.setData(newData);
+            v.setData(data);
+            v.render();
+        });
+    }
+    const filterSeasonData = (season) => {
+        visualizations.forEach((v) => {
+            v.setData(data.filter((d) => d.season === season));
             v.render();
         });
     };
@@ -56,14 +61,14 @@ function visualizeData(data) {
         }
         activeSeasonFilter = s;
         if (s === 0) {
-            filterData(data);
+            clearFilters();
             d3.select("#btn-filter-none")
                 .attr("class", "btn btn-secondary");
             d3.selectAll(filterBtnIds.join(","))
                 .attr("class", "btn btn-outline-primary");
         }
         else {
-            filterData(data.filter((d) => d.season === s));
+            filterSeasonData(s);
             d3.select("#btn-filter-none")
                 .attr("class", "btn btn-outline-secondary");
             d3.selectAll(filterBtnIds.join(","))
@@ -183,29 +188,26 @@ function visualizeData(data) {
         height: 150,
         margin: { top: 50, left: 100, bottom: 50, right: 50 }
     });
-    const wordCloud = new WordMap(data, accumulateMapper((acc, ep) => {
-        for (const line of ep.transcript) {
-            for (const word of line.text.toLowerCase().split(/[;:!?,\s\/\.“"\-—()[\]{}]+/)) {
-                if (!word || COMMON_WORDS.has(word)) {
-                    continue;
-                }
-                if (word in acc) {
-                    acc[word]++;
-                }
-                else {
-                    acc[word] = 1;
-                }
+    console.time("cloud");
+    const wordCloud = new WordMap(data, accumulateMapper((acc, season) => {
+        for (const word in season.words) {
+            if (word in acc) {
+                acc[word] += season.words[word];
+            }
+            else {
+                acc[word] = season.words[word];
             }
         }
         return acc;
     }, {}, (obj) => ({
-        data: Object.entries(obj).map(([text, value]) => ({ text, value })),
+        data: Object.entries(obj).map(([text, value]) => ({ text, value })).slice(0, 200),
         unknownCount: 0
     })), {}, {
         parent: '#big-chart-container',
         height: 400,
         width: 800
     });
+    console.timeEnd("cloud");
     visualizations.push(wordCloud);
     d3.select("#loader").remove();
 }

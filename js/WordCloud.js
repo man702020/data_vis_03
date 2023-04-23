@@ -68,17 +68,7 @@ class WordMap extends AbstractVisualization {
             .rotate(this.rotate)
             .font(this.fontFamily)
             .fontSize((d) => Math.sqrt(d.value) * this.fontScale)
-            // .on("word", ({ size, x, y, rotate, text }) => {
-            //     this.ctx
-            //         .append("text")
-            //         .attr("class", "words")
-            //         .attr("font-size", size!)
-            //         .attr("transform", `translate(${x},${y}) rotate(${rotate})`)
-            //         .style("fill", (d) => this.colorScale(Math.pow(size! / this.fontScale, 2)))
-            //     .text(text);
-            // })
             .on("end", (words) => {
-            console.log("words!", words.length);
             this.ctx.selectAll(".word-cloud-word").data(words).join("text")
                 .attr("class", "word-cloud-word")
                 .attr("font-size", (d) => d.size)
