@@ -11,25 +11,18 @@ function isMatch(searchOnString, searchText) {
     searchText = searchText.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
     return searchOnString.match(new RegExp("\\b" + searchText + "\\b", "i")) != null;
 }
-d3.json('data/episodes.json')
-    .then((rawData) => {
-    const data = rawData;
-    console.log(`Data loading complete: ${data.length} episodes.`);
-    console.log("Example:", data[0]);
+Promise.all([
+    d3.json('data/data.json'),
     d3.csv('data/KorraCharacters.csv')
-        .then((rawcharData) => {
-        const charData = rawcharData.map(parseCharacter);
-        console.log(`Character loading complete: ${charData.length} characters.`);
-        console.log("Chatacter example:", charData[0]);
-        return visualizeData(data, charData);
-    }).catch(err => {
-        console.error("Error loading Character data");
-        console.error(err);
-    });
+])
+    .then(([epData, charData]) => {
+    const data = epData;
+    console.log(`Data loading complete: ${data.episodes.length} episodes.`);
+    console.log("Example:", data.episodes[0]);
+    return visualizeData(data.episodes, charData.map(parseCharacter));
 })
     .catch(err => {
     console.error("Error loading the data");
-    console.error("Error loading Episode data");
     console.error(err);
 });
 const SEASON_COLORS = [
@@ -42,18 +35,18 @@ const EPISODE_COLOR_MAP = [
     ...new Array(13).fill(SEASON_COLORS[3]),
 ];
 const CHARACTER_COLOR_MAP = {
-    "Korra": "#8dd3c7",
-    "Lin": "#ffffb3",
-    "Tarrlok": "#bebada",
-    "Toph": "#fb8072",
-    "Tenzin": "#80b1d3",
-    "Jinora": "#fdb462",
-    "Iroh": "#b3de69",
-    "Mako": "#fccde5",
-    "Bolin": "#d9d9d9",
-    "Asami": "#bc80bd",
-    "Suyin": "#ccebc5",
-    "Kuvira": "#ffed6f",
+    "Korra": d3.schemeCategory10[0],
+    "Lin": d3.schemeCategory10[1],
+    "Tarrlok": d3.schemeCategory10[2],
+    "Toph": d3.schemeCategory10[3],
+    "Tenzin": d3.schemeCategory10[4],
+    "Jinora": d3.schemeCategory10[5],
+    "Iroh": d3.schemeCategory10[6],
+    "Mako": d3.schemeCategory10[7],
+    "Bolin": d3.schemeCategory10[8],
+    "Asami": d3.schemeCategory10[9],
+    "Suyin": d3.schemePaired[9],
+    "Kuvira": d3.schemeSet1[6],
 };
 const IMPORTANT_CHARACTERS = Object.keys(CHARACTER_COLOR_MAP);
 const filterBtnIds = [
@@ -81,7 +74,7 @@ function visualizeData(data, charData) {
         var charData = findCharacterData(lowerName);
         var image = charData === null || charData === void 0 ? void 0 : charData.Image_Url; // Might not exist
         var url = charData === null || charData === void 0 ? void 0 : charData.Url; // Unused due to difficulty
-        var output = ` 
+        var output = `
                         <div class='charBox'><b>${name}</b> </div>
                         <br>
                         <ul>
@@ -89,7 +82,7 @@ function visualizeData(data, charData) {
                         </ul>
                     `;
         if (charData != undefined) {
-            output = ` 
+            output = `
                         <div class='charBox'>
                         <img src="${image}", width="80" height="65">
                         </div>
@@ -252,6 +245,7 @@ function visualizeData(data, charData) {
         width: 300,
         margin: { top: 50, right: 10, bottom: 50, left: 60 }
     });
+    visualizations.push(episodesPerSeason);
     const linesPerCharacter = new BarChart(data, accumulateMapper((acc, ep) => {
         for (const line of ep.transcript) {
             if (!IMPORTANT_CHARACTERS.includes(line.speaker)) {
@@ -290,7 +284,6 @@ function visualizeData(data, charData) {
     const timelineHist = new BarChart(data, elementMapper((d) => {
         const label = d.abs_episode.toString();
         const value = d.transcript.length;
-        console.log("COLOR>>?", EPISODE_COLOR_MAP[d.abs_episode - 1], d, d.abs_episode);
         return {
             label,
             value,
@@ -345,11 +338,10 @@ function visualizeData(data, charData) {
     }, {
         parent: "#right-chart-container",
         className: "col-12",
-        height: 400,
-        width: 1000,
+        height: 250,
+        width: 700,
         margin: { top: 50, right: 100, bottom: 50, left: 90 }
     });
-    visualizations.push(episodesPerSeason);
     console.time("cloud");
     const wordCloud = new WordMap(data, accumulateMapper((acc, season) => {
         for (const word in season.words) {
@@ -364,14 +356,58 @@ function visualizeData(data, charData) {
     }, () => ({}), (obj) => ({
         data: Object.entries(obj).map(([text, value]) => ({ text, value })).slice(0, 200),
         unknownCount: 0
-    })), {}, {
+    })), {
+        title: "Word Cloud"
+    }, {
         parent: '#left-chart-container',
         height: 400,
         width: 800,
-        margin: { top: 10, left: 10, bottom: 10, right: 10 },
+        margin: { top: 50, left: 10, bottom: 10, right: 10 }
     });
     console.timeEnd("cloud");
     visualizations.push(wordCloud);
+    const treeCloud = new DirectedChord(data, accumulateMapper((acc, ep) => {
+        for (const line of ep.transcript) {
+            if (!IMPORTANT_CHARACTERS.includes(line.speaker)) {
+                continue;
+            }
+            for (const maybeTo of IMPORTANT_CHARACTERS) {
+                if (line.text.includes(maybeTo)) {
+                    if (!(line.speaker in acc)) {
+                        acc[line.speaker] = {};
+                    }
+                    if (!(maybeTo in acc[line.speaker])) {
+                        acc[line.speaker][maybeTo] = 0;
+                    }
+                    acc[line.speaker][maybeTo]++;
+                }
+            }
+        }
+        return acc;
+    }, () => ({}), (acc) => {
+        const data = [];
+        for (const [from, to_obj] of Object.entries(acc)) {
+            for (const [to, value] of Object.entries(to_obj)) {
+                data.push({
+                    from, to, value
+                });
+            }
+        }
+        return {
+            data,
+            unknownCount: 0
+        };
+    }), {
+        title: "Character Mentions",
+        colorMap: CHARACTER_COLOR_MAP,
+        eventHandler: characterEventHandler
+    }, {
+        parent: '#right-chart-container',
+        width: 600,
+        height: 600,
+        margin: { top: 50, bottom: 5, right: 50, left: 50 }
+    });
+    visualizations.push(treeCloud);
     d3.select("#loader").remove();
 }
 //# sourceMappingURL=index.js.map

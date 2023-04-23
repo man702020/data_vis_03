@@ -61,6 +61,12 @@ table, th, td {
 
 
 
+.line-plot-layer {
+    opacity: 0.5;
+}
+.line-plot-layer.highlight {
+    opacity: 1;
+}
 .line-plot-layer.highlight > .line-plot-marker {
     r: 5px;
 }
@@ -76,5 +82,12 @@ table, th, td {
 }
 .legend-entry.highlight > text {
     font-weight: bold;
+}
+
+.chord {
+    opacity: 0.5;
+}
+.chord.highlight,.chord:hover {
+    opacity: 1;
 }
 

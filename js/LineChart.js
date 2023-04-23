@@ -99,11 +99,11 @@ class MultiLineChart extends AbstractChart {
         super(rawData, dataMapper, lineConfig, drawConfig);
         this.legend = this.svg.append("g")
             .attr("class", "legend")
-            .attr("transform", `translate(${this.margin.left + this.drawConfig.width}, ${this.margin.top})`);
+            .attr("transform", `translate(${this.margin.left + this.drawConfig.width + 15}, ${this.margin.top})`);
         this.legend.append("rect")
             .attr("x", 0)
             .attr("y", 0)
-            .attr("width", this.margin.right)
+            .attr("width", this.margin.right - 15)
             .attr("height", 15 + this.data.length * 20)
             .attr("rx", 10)
             .attr("fill", "#fff")
