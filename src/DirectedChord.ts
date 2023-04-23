@@ -80,9 +80,11 @@ class DirectedChord<T> extends AbstractVisualization<T, ChordData, ChordConfig>
                 case "hover":
                     this.ctx.selectAll(`.chord-to-${ch}`)
                         .classed("highlight", true);
+                    break;
                 case "unhover":
                     this.ctx.selectAll(`.chord-to-${ch}`)
                         .classed("highlight", false);
+                    break;
             }
         });
 
@@ -131,7 +133,14 @@ class DirectedChord<T> extends AbstractVisualization<T, ChordData, ChordConfig>
                         ${objects[d.index]}
                     </textPath>
                 </text>
-            `);
+            `)
+            .on("mouseover", (_, d) => this.chartConfig.eventHandler?.emit("hover", objects[d.index]))
+            .on("mouseout", (_, d) => this.chartConfig.eventHandler?.emit("unhover", objects[d.index]));
+
+        enableTooltip(groups, (d) => {
+            const mentions = this.data.filter((v) => v.to === objects[d.index]).reduce((acc, val) => acc + val.value, 0);
+            return `${objects[d.index]} is mentioned ${mentions} times`;
+        });
     }
  }
 
