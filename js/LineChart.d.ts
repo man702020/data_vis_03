@@ -15,6 +15,7 @@ interface Series {
     label: string;
     values: Point2D[];
     color?: string;
+    bold?: boolean;
 }
 interface MultiLineConfig extends ChartConfig<Series> {
     xAxisLabel: string;
@@ -22,6 +23,7 @@ interface MultiLineConfig extends ChartConfig<Series> {
     yAxisLabel: string;
     yTickFormat?: (d: number) => string;
     colorScheme?: readonly string[];
+    eventHandler?: CharacterEventHandler;
     xScale?: "linear" | "log";
     yScale?: "linear" | "log";
 }

@@ -41,6 +41,8 @@ function visualizeData(data: KorraEpisode[]) {
     //     rerenderData()
     // }
 
+    const characterEventHandler = new CharacterEventHandler();
+
 
 
     const episodesPerSeason = new BarChart(
@@ -135,6 +137,8 @@ function visualizeData(data: KorraEpisode[]) {
             title: "Character Lines per Episode",
             xAxisLabel: "Episode",
             yAxisLabel: "Lines",
+            eventHandler: characterEventHandler
+            // onMouseOver: (d) => console.log(`Mouse Over ${d.label}`)
         },
         {
             parent: "#big-chart-container",

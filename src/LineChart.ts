@@ -68,8 +68,10 @@ class LineChart<T> extends AbstractXYChart<T, Point2D, "x", "y", LineConfig>
 
 interface Series {
     label: string;
-    values: Point2D[],
-    color?: string,
+    values: Point2D[];
+
+    color?: string;
+    bold?: boolean;
 }
 interface MultiLineConfig extends ChartConfig<Series> {
     xAxisLabel: string;
@@ -77,7 +79,8 @@ interface MultiLineConfig extends ChartConfig<Series> {
     yAxisLabel: string;
     yTickFormat?: (d: number) => string;
 
-    colorScheme?: readonly string[]
+    colorScheme?: readonly string[];
+    eventHandler?: CharacterEventHandler;
 
     xScale?: "linear" | "log";
     yScale?: "linear" | "log";
@@ -206,27 +209,52 @@ class MultiLineChart<T> extends AbstractChart<T, Series, MultiLineConfig>
     }
 
     public render() {
-        this.ctx.selectAll(".line-plot-line").data(this.data).join("polyline")
-            .attr("class", ({ label }) => `line-plot-line line-plot-line-${label}`)
-            .attr("points", ({ values }) => values.map(({ x, y }) => `${this.xScale(x)},${this.yScale(y)}`).join(" "))
-            .attr("stroke", (d) => d.color || "#000")
-            .attr("fill", "none");
-
         this.legend.selectAll(".legend-entry").data(this.data).join("g")
             .attr("transform", (_, i) => `translate(5, ${5 + i * 20})`)
+            .attr("class", (d) => `legend-entry legend-entry-${d.label}`)
             .html((d) => `
                 <line x1="0" y1="10" x2="16" y2="10" stroke="${d.color || "#000"}"/>
                 <circle cx="8" cy="10" r="3" fill="${d.color || "#000"}"/>
                 <text x="20" y="16" >${d.label}</text>
             `)
+            .on("mouseover", (_, d) => this.chartConfig.eventHandler?.emit("hover", d.label))
+            .on("mouseout", (_, d) => this.chartConfig.eventHandler?.emit("unhover", d.label));
 
-        this.ctx.selectAll(".line-plot-marker-layer").data(this.data).join("g")
-            .attr("class", ({ label }) => `line-plot-marker-layer line-plot-marker-layer-${label}`)
-            .selectAll("line-plot-marker").data((d) => d.values.map((p) => ({ color: d.color, ...p}))).join("circle")
-                .attr("class", "line-plot-marker")
-                .attr("cx", (d) => this.xScale(d.x))
-                .attr("cy", (d) => this.yScale(d.y))
-                .attr("r", 3)
-                .attr("fill", (d) => d.color || "#000");
+        const layers = this.ctx.selectAll(".line-plot-layer").data(this.data).join("g")
+            .attr("class", ({ label }) => `line-plot-layer line-plot-layer-${label}`)
+        layers.append("polyline")
+            .attr("class", ({ label }) => `line-plot-line line-plot-line-${label}`)
+            .attr("points", ({ values }) => values.map(({ x, y }) => `${this.xScale(x)},${this.yScale(y)}`).join(" "))
+            .attr("stroke", (d) => d.color || "#000")
+            .attr("stroke-width", (d) => d.bold ? "3" : "2")
+            .attr("fill", "none")
+            .on("mouseover", (_, d) => this.chartConfig.eventHandler?.emit("hover", d.label))
+            .on("mouseout", (_, d) => this.chartConfig.eventHandler?.emit("unhover", d.label));
+        layers.selectAll("line-plot-marker").data((d) => d.values.map((p) => ({ ...p, series: d }))).join("circle")
+            .attr("class", (d) => `line-plot-marker line-plot-marker-${d.series.label}`)
+            .attr("cx", (d) => this.xScale(d.x))
+            .attr("cy", (d) => this.yScale(d.y))
+            .attr("r", (d) => d.series.bold ? 5 : 3)
+            .attr("fill", (d) => d.series.color || "#000")
+            .on("mouseover", (_, d) => this.chartConfig.eventHandler?.emit("hover", d.series.label))
+            .on("mouseout", (_, d) => this.chartConfig.eventHandler?.emit("unhover", d.series.label));
+
+
+
+        this.chartConfig.eventHandler?.addEventHandler((ev, label) => {
+            switch(ev) {
+                case "hover":
+                    this.ctx.selectAll(`.line-plot-layer-${label}`)
+                        .classed("highlight", true);
+                    this.legend.selectAll(`.legend-entry-${label}`)
+                        .classed("highlight", true);
+                    break;
+                case "unhover":
+                    this.ctx.selectAll(`.line-plot-layer-${label}`)
+                        .classed("highlight", false);
+                    this.legend.selectAll(`.legend-entry-${label}`)
+                        .classed("highlight", false);
+            }
+        })
     }
 }
