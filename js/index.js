@@ -203,11 +203,13 @@ function visualizeData(data) {
     }, () => ({}), (obj) => ({
         data: Object.entries(obj).map(([text, value]) => ({ text, value })).slice(0, 200),
         unknownCount: 0
-    })), {}, {
+    })), {
+        title: "Word Cloud"
+    }, {
         parent: '#left-chart-container',
         height: 400,
         width: 800,
-        margin: { top: 10, left: 10, bottom: 10, right: 10 }
+        margin: { top: 50, left: 10, bottom: 10, right: 10 }
     });
     console.timeEnd("cloud");
     visualizations.push(wordCloud);
@@ -244,7 +246,8 @@ function visualizeData(data) {
         };
     }), {
         title: "Character Mentions",
-        colorMap: CHARACTER_COLOR_MAP
+        colorMap: CHARACTER_COLOR_MAP,
+        eventHandler: characterEventHandler
     }, {
         parent: '#right-chart-container',
         width: 600,

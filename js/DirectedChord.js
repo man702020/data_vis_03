@@ -2,6 +2,7 @@
 class DirectedChord extends AbstractVisualization {
     // protected colorScheme = ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"];
     constructor(rawData, dataMapper, chartConfig, drawConfig) {
+        var _a;
         super();
         this.dataMapper = dataMapper;
         this.chartConfig = chartConfig;
@@ -37,6 +38,16 @@ class DirectedChord extends AbstractVisualization {
         this.arc = d3.arc()
             .innerRadius(this.innerRadius)
             .outerRadius(this.outerRadius);
+        (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.addEventHandler((ev, ch) => {
+            switch (ev) {
+                case "hover":
+                    this.ctx.selectAll(`.chord-to-${ch}`)
+                        .classed("highlight", true);
+                case "unhover":
+                    this.ctx.selectAll(`.chord-to-${ch}`)
+                        .classed("highlight", false);
+            }
+        });
         this.render();
     }
     render() {
@@ -55,11 +66,12 @@ class DirectedChord extends AbstractVisualization {
             matrix[fromIndex][toIndex] += conn.value;
         }
         const chords = this.chord(matrix);
-        this.ctx.selectAll(".chord").data(chords).join("path")
-            .attr("class", "chord")
+        const chordSel = this.ctx.selectAll(".chord").data(chords).join("path")
+            .attr("class", (d) => `chord chord-from-${objects[d.source.index]} chord-to-${objects[d.target.index]}`)
             .attr("d", this.ribbon)
             .attr("fill", d => this.chartConfig.colorMap[objects[d.target.index]])
             .style("mix-blend-mode", "multiply");
+        enableTooltip(chordSel, (d) => `${objects[d.source.index]} mentions ${objects[d.target.index]} ${d.target.value} times`);
         const groups = this.ctx.selectAll(".chord-group").data(chords.groups).join("g")
             .attr("class", "chord-group")
             .attr("font-family", "sans-serif")

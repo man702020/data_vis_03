@@ -5,6 +5,7 @@ interface ChordConfig extends VisualizationConfig<ChordData> {
     title?: string;
 
     colorMap: Record<string, string>;
+    eventHandler?: CharacterEventHandler;
 }
 interface ChordData {
     from: string;
@@ -74,7 +75,19 @@ class DirectedChord<T> extends AbstractVisualization<T, ChordData, ChordConfig>
             .innerRadius(this.innerRadius)
             .outerRadius(this.outerRadius)
 
+        this.chartConfig.eventHandler?.addEventHandler((ev, ch) => {
+            switch(ev) {
+                case "hover":
+                    this.ctx.selectAll(`.chord-to-${ch}`)
+                        .classed("highlight", true);
+                case "unhover":
+                    this.ctx.selectAll(`.chord-to-${ch}`)
+                        .classed("highlight", false);
+            }
+        });
+
         this.render();
+
     }
 
     public render() {
@@ -96,11 +109,12 @@ class DirectedChord<T> extends AbstractVisualization<T, ChordData, ChordConfig>
 
         const chords = this.chord(matrix);
 
-        this.ctx.selectAll(".chord").data(chords).join("path")
-            .attr("class", "chord")
+        const chordSel = this.ctx.selectAll(".chord").data(chords).join("path")
+            .attr("class", (d) => `chord chord-from-${objects[d.source.index]} chord-to-${objects[d.target.index]}`)
             .attr("d", this.ribbon)
             .attr("fill", d => this.chartConfig.colorMap[objects[d.target.index]])
             .style("mix-blend-mode", "multiply");
+        enableTooltip(chordSel, (d) => `${objects[d.source.index]} mentions ${objects[d.target.index]} ${d.target.value} times`);
 
 
         const groups = this.ctx.selectAll(".chord-group").data(chords.groups).join("g")

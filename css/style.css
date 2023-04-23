@@ -87,4 +87,7 @@ table, th, td {
 .chord {
     opacity: 0.5;
 }
+.chord.highlight,.chord:hover {
+    opacity: 1;
+}
 

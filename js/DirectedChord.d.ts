@@ -1,6 +1,7 @@
 interface ChordConfig extends VisualizationConfig<ChordData> {
     title?: string;
     colorMap: Record<string, string>;
+    eventHandler?: CharacterEventHandler;
 }
 interface ChordData {
     from: string;
