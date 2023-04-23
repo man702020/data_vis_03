@@ -264,7 +264,8 @@ function visualizeData(data: KorraEpisode[],charData:KorraCharacterData[]) {
         {
             xAxisLabel: "Season",
             yAxisLabel: "Episodes",
-            onDataSelect: (d) => setSeasonFilter(parseInt(d.label))
+            onDataSelect: (d) => setSeasonFilter(parseInt(d.label)),
+            title: "Number of Episodes per Season"
         },
         {
             parent: "#left-chart-container",
@@ -310,6 +311,7 @@ function visualizeData(data: KorraEpisode[],charData:KorraCharacterData[]) {
             eventHandler: characterEventHandler,
             padding: 0.2,
             xTickRotate: -45,
+            title: "Number of line per main character"
         },
         {
             parent: "#left-chart-container",
@@ -340,6 +342,7 @@ function visualizeData(data: KorraEpisode[],charData:KorraCharacterData[]) {
     {
         xAxisLabel: "Total number of Episode",
         yAxisLabel: "Number of Lines",
+        title: "Total Number of Line throughout the season",
         labelSort: (a,b) => parseInt(a) - parseInt(b),
         padding: 0.2
     }, {
