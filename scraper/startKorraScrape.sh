@@ -1,1 +1,1 @@
-python3 korraScrapper.py
+python3 character_scraper.py
