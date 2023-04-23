@@ -17,12 +17,22 @@ d3.json('data/episodes.json')
 type FilterFn = (d: KorraEpisode) => boolean | undefined | 0;
 
 
+const SEASON_COLORS = [
+    "#e41a1c", "#377eb8", "#4daf4a", "#984ea3"
+];
+const EPISODE_COLOR_MAP = [
+    ...new Array(12).fill(SEASON_COLORS[0]),
+    ...new Array(14).fill(SEASON_COLORS[1]),
+    ...new Array(13).fill(SEASON_COLORS[2]),
+    ...new Array(13).fill(SEASON_COLORS[3]),
+];
+
 
 function visualizeData(data: KorraEpisode[]) {
 
     const visualizations: AbstractChart<KorraEpisode, unknown, ChartConfig<any>>[] = [];
 
-    const newData =data; 
+    const newData =data;
     const filterData = (newData: KorraEpisode[]) => {
         visualizations.forEach((v) => {
             v.setData(newData);
@@ -42,7 +52,7 @@ function visualizeData(data: KorraEpisode[]) {
     d3.select("#btn-reset-s3").on("click", () => {
         filterData(data.filter((d) => d.season === 3))
     });
-    
+
     d3.select("#btn-reset-s4").on("click", () => {
         filterData(data.filter((d) => d.season === 4))
     });
@@ -60,95 +70,32 @@ function visualizeData(data: KorraEpisode[]) {
     "#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a","#4daf4a",
     "#984ea3","#984ea3","#984ea3","#984ea3","#984ea3","#984ea3","#984ea3","#984ea3","#984ea3","#984ea3","#984ea3","#984ea3","#984ea3"];
     */
-    
-    const colorMap1 = {
-        "1": "#e41a1c",
-        "2": "#377eb8",
-        "3": "#4daf4a",
-        "4": "#984ea3"
-    } as { [key: string]: string };
 
     const colorMap2 = {
-         "Korra":  "#8dd3c7",
-         "Lin":"#ffffb3",
-          "Tarrlok":"#bebada",
-         "Toph":  "#fb8072",
-         "Tenzin": "#80b1d3",
-         "Jinora": "#fdb462",
-        "Iroh": "#b3de69",
-        "Mako": "#fccde5",
-        "Bolin": "#d9d9d9",
-        "Asami": "#bc80bd",
-         "Suyin": "#ccebc5",
-        "Kuvira": "#ffed6f",
+        "Korra":    "#8dd3c7",
+        "Lin":      "#ffffb3",
+        "Tarrlok":  "#bebada",
+        "Toph":     "#fb8072",
+        "Tenzin":   "#80b1d3",
+        "Jinora":   "#fdb462",
+        "Iroh":     "#b3de69",
+        "Mako":     "#fccde5",
+        "Bolin":    "#d9d9d9",
+        "Asami":    "#bc80bd",
+        "Suyin":    "#ccebc5",
+        "Kuvira":   "#ffed6f",
     }as { [key: string]: string };
-
-    const colorMap3 = {
-        "1":  "#e41a1c",
-        "2":"#e41a1c",
-         "3":"#e41a1c",
-        "4":  "#e41a1c",
-        "5": "#e41a1c",
-        "6": "#e41a1c",
-       "7": "#e41a1c",
-       "8": "#e41a1c",
-       "9": "#e41a1c",
-       "10": "#e41a1c",
-        "11": "#e41a1c",
-       "12": "#e41a1c",
-       "13": "#377eb8",
-       "14": "#377eb8",
-       "15": "#377eb8",
-       "16": "#377eb8",
-       "17": "#377eb8",
-       "18": "#377eb8",
-       "19": "#377eb8",
-       "20": "#377eb8",
-       "21": "#377eb8",
-       "22": "#377eb8",
-       "23": "#377eb8",
-       "24": "#377eb8",
-       "25": "#377eb8",
-       "26": "#377eb8",
-       "27": "#4daf4a",
-       "28": "#4daf4a",
-       "29": "#4daf4a",
-       "30": "#4daf4a",
-       "31": "#4daf4a",
-       "32": "#4daf4a",
-       "33": "#4daf4a",
-       "34": "#4daf4a",
-       "35": "#4daf4a",
-       "36": "#4daf4a",
-       "37": "#4daf4a",
-       "38": "#4daf4a",
-       "39": "#4daf4a",
-       "40": "#984ea3",
-       "41": "#984ea3",
-       "42": "#984ea3",
-       "43": "#984ea3",
-       "44": "#984ea3",
-       "45": "#984ea3",
-       "46": "#984ea3",
-       "47": "#984ea3",
-       "48": "#984ea3",
-       "49": "#984ea3",
-       "50": "#984ea3",
-       "51": "#984ea3",
-       "52": "#984ea3",
-
-   }as { [key: string]: string };
 
     const episodesPerSeason = new BarChart(
         data,
         aggregateMapper(
             (d) => d.season.toString(),
-            (b, c) => ({ label: b, value: c, tooltip: `${c} Episodes`, color: colorMap1[b] })
+            (b, c) => ({ label: b, value: c, tooltip: `${c} Episodes`, color: SEASON_COLORS[parseInt(b) - 1] })
         ),
         {
             xAxisLabel: "Season",
             yAxisLabel: "Episodes",
-            //colorScheme: scheme1 
+            //colorScheme: scheme1
         },
         {
             parent: "#chart-container",
@@ -175,10 +122,10 @@ function visualizeData(data: KorraEpisode[]) {
         { 'xValue': "Kuvira", 'yValue': 0},
     ];
 
-    data=newData; 
+    data=newData;
     let episode = [];
-    const season1 = []; 
-    const season2 = []; 
+    const season1 = [];
+    const season2 = [];
     const season3 = [];
     const season4 = [];
     for (let i = 0; i < 52; i++) {
@@ -200,16 +147,16 @@ function visualizeData(data: KorraEpisode[]) {
         season4.push(data[i]);
       }
     }
-    
-    
+
+
     for (let i = 0; i < 52; i++) {
       let transcript= episode[i];
-        transcript.forEach(text => { 
-                     
+        transcript.forEach(text => {
+
         if(text.speaker=="Korra")
         {
             charData[0].yValue=charData[0].yValue +1 ;
-        } 
+        }
         else if(text.speaker == "Lin")
         {
             charData[1].yValue=charData[1].yValue +1 ;
@@ -259,8 +206,8 @@ function visualizeData(data: KorraEpisode[]) {
 
     const linedata = charData.map(d => ({ label: d.xValue, value: d.yValue, tooltip: `${d.yValue} Lines`}));
 
-    
-    const linesPerCharacter = new HorizontalBarChart(charData, elementMapper(   
+
+    const linesPerCharacter = new HorizontalBarChart(charData, elementMapper(
        (d => ({ label: d.xValue, value: d.yValue, tooltip: `${d.yValue} Lines`, color: colorMap2[d.xValue]}))
     ),
     {
@@ -272,7 +219,7 @@ function visualizeData(data: KorraEpisode[]) {
         height: 200,
         width: 500,
         margin: { top: 20, right: 20, bottom: 50, left: 100 }
-    }); 
+    });
 
     let timeline_lines = new Array(52).fill(undefined).map(() => [0]);
     for (let i = 0; i < 52; i++) {
@@ -282,8 +229,8 @@ function visualizeData(data: KorraEpisode[]) {
       });
     }
 
-    console.log(timeline_lines); 
-    
+    console.log(timeline_lines);
+
     const timelineData = [];
 
     for (let i = 1; i <= 52; i++) {
@@ -296,15 +243,15 @@ function visualizeData(data: KorraEpisode[]) {
     for (let i=0; i < 52; i++)
     {
         const val= timeline_lines[i][0];
-        timelineData[i].yValue = val; 
+        timelineData[i].yValue = val;
     }
-     
+
 
     console.log(timelineData);
-    
 
-    const timelineHist = new BarChart(timelineData, elementMapper(   
-        (d => ({ label: d.xValue, value: d.yValue, tooltip: `${d.yValue} Lines`, color: colorMap3[d.xValue]}))
+
+    const timelineHist = new BarChart(timelineData, elementMapper(
+        (d => ({ label: d.xValue, value: d.yValue, tooltip: `${d.yValue} Lines`, color: EPISODE_COLOR_MAP[parseInt(d.xValue) - 1]}))
     ),
     {
         xAxisLabel: "Total number of Episode",
