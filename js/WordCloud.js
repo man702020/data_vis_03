@@ -73,7 +73,7 @@ class WordMap extends AbstractVisualization {
                 .attr("class", "word-cloud-word")
                 .attr("font-size", (d) => d.size)
                 .attr("transform", (d) => `translate(${d.x},${d.y}) rotate(${d.rotate})`)
-                .style("fill", (d) => this.colorScale(Math.pow(d.size / this.fontScale, 2)))
+                .style("fill", (d, i) => d3.schemeCategory10[i % 10])
                 .text((d) => d.text);
         });
         this.render();

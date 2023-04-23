@@ -23,6 +23,7 @@ class WordMap<T> extends AbstractVisualization<T, Word, WordMapConfig>
 
     protected margin: Margin;
 
+
     private colorScale = d3.scaleThreshold<number, string>()
         .domain([1, 10, 50, 100, 300, 500])
         .range(["#CCE5FF", "#99C2FF", "#66A3FF", "#3377FF", "#0047B3", "#002147"]);
@@ -103,7 +104,7 @@ class WordMap<T> extends AbstractVisualization<T, Word, WordMapConfig>
                     .attr("class", "word-cloud-word")
                     .attr("font-size", (d) => d.size!)
                     .attr("transform", (d) => `translate(${d.x},${d.y}) rotate(${d.rotate})`)
-                    .style("fill", (d) => this.colorScale(Math.pow(d.size! / this.fontScale, 2)))
+                    .style("fill", (d, i) => d3.schemeCategory10[i % 10])
                     .text((d) => d.text)
             });
 
