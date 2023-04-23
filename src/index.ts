@@ -61,6 +61,38 @@ function visualizeData(data: KorraEpisode[]) {
             width: 500,
             margin: { top: 50, right: 50, bottom: 50, left: 80 }
         }
+    );
+
+    const characterLines = data.reduce((acc, ep) => {
+        for(const line of ep.transcript) {
+            if(line.speaker in acc) {
+                acc[line.speaker]++;
+            } else {
+                acc[line.speaker] = 1;
+            }
+        }
+        return acc;
+    }, {  } as Record<string, number>);
+    const topTenCharacters = Object.entries(characterLines).sort((a, b) => b[1] - a[1]).slice(0, 10);
+
+    const linesPerCharacter = new BarChart(
+        topTenCharacters,
+        elementMapper(
+            ([ speaker, lines]) => ({ label: speaker, value: lines })
+        ),
+        {
+            xAxisLabel: "Character",
+            yAxisLabel: "Lines",
+            colorScheme: d3.schemeCategory10,
+            labelOrder: topTenCharacters.map(([ speaker, _ ]) => speaker)
+        },
+        {
+            parent: "#chart-container",
+            className: "col-12",
+            height: 200,
+            width: 500,
+            margin: { top: 50, right: 50, bottom: 50, left: 100 }
+        }
     )
 
     /*

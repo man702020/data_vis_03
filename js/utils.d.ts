@@ -13,7 +13,7 @@ declare function aggregateMapper<T, D>(bucketFn: (d: T) => string | undefined, m
 declare function weekMapper<T, D>(bucketFn: (d: T) => string | undefined, mapFn: (bucket: string, count: number) => D): DataMapperFn<T, D>;
 declare function straightMapper<T, D>(bucketFn: (d: T) => string | undefined, mapFn: (bucket: string, count: number) => D, valueStr: keyof T): DataMapperFn<T, D>;
 declare function timePieMapper<T, D>(bucketFn: (d: T) => string | undefined, mapFn: (bucket: string, count: number) => D): DataMapperFn<T, D>;
-declare function emptyMapper<T, D>(bucketFn: (d: T) => string | undefined, mapFn: (bucket: string, count: number) => D, valueStr: string): DataMapperFn<T, D>;
+declare function identityMapper<D>(): DataMapperFn<D | undefined, D>;
 declare function binMapper<T>(mapFn: (d: T) => number | undefined, binConfig?: {
     bins?: number;
 }): DataMapperFn<T, d3.Bin<number, number>>;
@@ -26,4 +26,5 @@ declare function binDateDayMapper<T>(mapFn: (d: T) => Date | undefined, binConfi
     startOfWeek?: number;
     dayOfMonth?: number;
 }): DataMapperFn<T, d3.Bin<Date, Date>>;
+declare function accumulateMapper<T, U, D>(accFn: (acc: U, d: T) => U, initialAcc: U, mapFn: (acc: U) => ChartData<D>): DataMapperFn<T, D>;
 //# sourceMappingURL=utils.d.ts.map
