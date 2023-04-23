@@ -281,7 +281,12 @@ function visualizeData(data: KorraEpisode[]) {
     console.timeEnd("cloud");
     visualizations.push(wordCloud);
 
-
+	  const treeCloud = new Tree({
+        parentElement: '#tree',
+        containerHeight: 800,
+        containerWidth: 1000,
+        margin: { top: 30, bottom: 5, right: 10, left: 20}
+    }, data);
 
     d3.select("#loader").remove();
 }
