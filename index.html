@@ -20,6 +20,12 @@
             crossorigin="anonymous"
             referrerpolicy="no-referrer"
         ></script>
+        <!-- Wordcloud Bundle-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js" 
+        integrity="sha512-HjKxWye8lJGPu5q1u/ZYkHlJrJdm6KGr89E6tOrXeKm1mItb1xusPU8QPcKVhP8F9LjpZT7vsu1Fa+dQywP4eg==" 
+        crossorigin="anonymous" 
+        referrerpolicy="no-referrer"
+        ></script>
     </head>
     <body class="vh-100 d-flex flex-column">
         <nav class="navbar bg-dark" data-bs-theme="dark">
@@ -35,15 +41,32 @@
         <main class="container-fluid flex-grow-1">
             <div class="row h-100">
                 <section class="col-4" id="side-panel">
+                    <div class="buttons-column">
+                        <button id="btn-reset-season" class="reset-button" type="button">Reset</button>
+                    </div>
                     <div class="row" id="chart-container">
 
                     </div>
+                    <div class="row" id="character-lines">
+                        
+                    </div>
 
-                    <div id="episode-per-season-container"></div>
+                    
 
                 </section>
-                <section class="col-8 d-flex align-items-center justify-content-center bg-dark-subtle">
-                    <h1 class="text-secondary-emphasis">Placeholder</h1>
+                <section class="col-8" id="main-panel">
+                    <div class="buttons-column">
+                        <button id="btn-reset-s1" class="reset-button" type="button">Season 1</button>
+                        <button id="btn-reset-s2" class="reset-button" type="button">Season 2</button>
+                        <button id="btn-reset-s3" class="reset-button" type="button">Season 3</button>
+                        <button id="btn-reset-s4" class="reset-button" type="button">Season 4</button>
+                    </div>
+
+
+                    <svg id="wordmap"></svg>
+                    
+                    <div id="timeline-container"></div>
+                    
                 </section>
             </div>
 
@@ -68,7 +91,11 @@
         <script src="js/StackedBarChart.js"></script>
         <script src="js/PieChart.js"></script>
 
-        <!-- New with Project 2 -->
+        <!-- New with Project 3 -->
         <script src="js/index.js"></script>
+        <script src="js/WordCloud.js"></script>
+
+
+        
     </body>
 </html>

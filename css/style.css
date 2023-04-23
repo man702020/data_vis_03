@@ -33,3 +33,16 @@
     font-size: 0.8rem;
     color: #888;
 }
+
+.buttons-column {
+  display: flex;
+  font-size: 0.8rem;
+  font-weight: 600;
+  
+}
+.buttons-column button {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
