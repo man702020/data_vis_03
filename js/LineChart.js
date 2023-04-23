@@ -94,7 +94,7 @@ class MultiLineChart extends AbstractChart {
         }
         this.renderAxes();
     }
-    constructor(rawData, dataMapper, lineConfig, drawConfig) {
+    constructor(rawData, dataMapper, lineConfig, drawConfig, tooltip) {
         var _a;
         super(rawData, dataMapper, lineConfig, drawConfig);
         this.legend = this.svg.append("g")
@@ -173,7 +173,7 @@ class MultiLineChart extends AbstractChart {
             .attr("fill", "none")
             .on("mouseover", (_, d) => { var _a; return (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.emit("hover", d.label); })
             .on("mouseout", (_, d) => { var _a; return (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.emit("unhover", d.label); });
-        layers.selectAll("line-plot-marker").data((d) => d.values.map((p) => (Object.assign(Object.assign({}, p), { series: d })))).join("circle")
+        const markers = layers.selectAll("line-plot-marker").data((d) => d.values.map((p) => (Object.assign(Object.assign({}, p), { series: d })))).join("circle")
             .attr("class", (d) => `line-plot-marker line-plot-marker-${d.series.label}`)
             .attr("cx", (d) => this.xScale(d.x))
             .attr("cy", (d) => this.yScale(d.y))
@@ -181,6 +181,9 @@ class MultiLineChart extends AbstractChart {
             .attr("fill", (d) => d.series.color || "#000")
             .on("mouseover", (_, d) => { var _a; return (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.emit("hover", d.series.label); })
             .on("mouseout", (_, d) => { var _a; return (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.emit("unhover", d.series.label); });
+        if (this.chartConfig.tooltipFn) {
+            enableTooltip(markers, this.chartConfig.tooltipFn);
+        }
     }
 }
 //# sourceMappingURL=LineChart.js.map
