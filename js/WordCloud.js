@@ -30,38 +30,6 @@ class WordMap extends AbstractVisualization {
                 .attr("y", this.margin.top - 10)
                 .html(chartConfig.title);
         }
-        this.svg.append("rect")
-            .attr('x', 2)
-            .attr('y', 135)
-            .attr('height', 150)
-            .attr('width', 105)
-            .attr('fill', 'white')
-            .attr('stroke', "black")
-            .attr('stroke-width', 1);
-        this.svg.append("text")
-            .attr("x", 7)
-            .attr("y", 150)
-            .attr("text-anchor", "left")
-            .style("alignment-baseline", "middle")
-            .text("Occurrences:");
-        this.svg.selectAll("legdots")
-            .data([0.99, 9.99, 49.99, 99.99, 299.99, 499.99, 500])
-            .enter()
-            .append("circle")
-            .attr("cx", 12)
-            .attr("cy", (d, i) => 170 + i * 15)
-            .attr("r", 5)
-            .style("fill", (d) => this.colorScale(d));
-        this.svg.selectAll("leglabels")
-            .data(["1", "2-10", "11-50", "51-100", "101-300", "301-500", "501+"])
-            .enter()
-            .append("text")
-            .attr("x", 22)
-            .attr("y", (d, i) => 170 + i * 15)
-            .style("fill", "black")
-            .text((d) => d)
-            .attr("text-anchor", "left")
-            .style("alignment-baseline", "middle");
         this.cloud = makeCloud()
             .size([this.drawConfig.width, this.drawConfig.height])
             .padding(this.padding)

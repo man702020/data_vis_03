@@ -1,4 +1,13 @@
 "use strict";
+function padNumber(n, width) {
+    const nStr = n.toString();
+    if (nStr.length < width) {
+        return "0".repeat(width - nStr.length) + nStr;
+    }
+    else {
+        return nStr;
+    }
+}
 function createSVG(drawConfig) {
     const margin = drawConfig.margin || { top: 0, bottom: 0, left: 0, right: 0 };
     const width = drawConfig.width + margin.left + margin.right;
@@ -264,9 +273,9 @@ function binDateDayMapper(mapFn, binConfig) {
         return { data, unknownCount };
     };
 }
-function accumulateMapper(accFn, initialAcc, mapFn) {
+function accumulateMapper(accFn, initialFn, mapFn) {
     return (sourceData) => {
-        const acc = sourceData.reduce(accFn, initialAcc);
+        const acc = sourceData.reduce(accFn, initialFn());
         return mapFn(acc);
     };
 }

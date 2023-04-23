@@ -114,11 +114,11 @@ function visualizeData(data: KorraEpisode[]) {
             onDataSelect: (d) => setSeasonFilter(parseInt(d.label))
         },
         {
-            parent: "#chart-container",
-            className: "col-12",
-            height: 200,
-            width: 500,
-            margin: { top: 50, right: 50, bottom: 50, left: 80 }
+            parent: "#left-chart-container",
+            className: "col-6",
+            height: 150,
+            width: 300,
+            margin: { top: 50, right: 10, bottom: 50, left: 60 }
         }
     );
 
@@ -138,7 +138,7 @@ function visualizeData(data: KorraEpisode[]) {
                 }
                 return acc;
             },
-            {  } as Record<string, number>,
+            () => ({  }) as Record<string, number>,
             (characterLines) => {
                 return {
                     data: Object.entries(characterLines).sort((a, b) => b[1] - a[1]).map(([ speaker, lines]) => ({
@@ -152,17 +152,49 @@ function visualizeData(data: KorraEpisode[]) {
             xAxisLabel: "Character",
             yAxisLabel: "Lines",
             sort: (a, b) => b.value - a.value,
-            eventHandler: characterEventHandler
+            eventHandler: characterEventHandler,
+            padding: 0.2,
+            xTickRotate: -45
         },
         {
-            parent: "#chart-container",
-            className: "col-12",
-            height: 200,
-            width: 500,
-            margin: { top: 50, right: 50, bottom: 50, left: 100 }
+            parent: "#left-chart-container",
+            className: "col-6",
+            height: 150,
+            width: 300,
+            margin: { top: 50, right: 10, bottom: 60, left: 70 }
         }
     );
     visualizations.push(linesPerCharacter);
+
+
+
+    const timelineHist = new BarChart(
+        data,
+        elementMapper(
+            (d) => {
+                const label = d.abs_episode.toString();
+                const value = d.transcript.length;
+                return {
+                    label,
+                    value,
+                    tooltip: `s${padNumber(d.season, 2)}e${padNumber(d.episode, 2)} Lines: ${value}`, color: EPISODE_COLOR_MAP[d.abs_episode - 1]
+                };
+            }
+        ),
+    {
+        xAxisLabel: "Total number of Episode",
+        yAxisLabel: "Number of Lines",
+        labelSort: (a,b) => parseInt(a) - parseInt(b),
+        padding: 0.2
+    }, {
+            parent: "#right-chart-container",
+            width: 800,
+            height: 150,
+            margin: { top: 50, left: 60, bottom: 50, right: 10 }
+        }
+    );
+
+
 
     const linesPerEpisode = new MultiLineChart(
         data,
@@ -193,7 +225,7 @@ function visualizeData(data: KorraEpisode[]) {
                 }
                 return acc;
             },
-            {} as Record<string, Series>,
+            () => ({}) as Record<string, Series>,
             (data) => ({ data: Object.values(data), unknownCount: 0 })
         ),
         {
@@ -204,7 +236,7 @@ function visualizeData(data: KorraEpisode[]) {
             // onMouseOver: (d) => console.log(`Mouse Over ${d.label}`)
         },
         {
-            parent: "#big-chart-container",
+            parent: "#right-chart-container",
             className: "col-12",
             height: 400,
             width: 1000,
@@ -215,31 +247,6 @@ function visualizeData(data: KorraEpisode[]) {
 
 
 
-    const timelineHist = new BarChart(
-        data,
-        elementMapper(
-            (d) => {
-                const label = d.abs_episode.toString();
-                const value = d.transcript.length;
-                return {
-                    label,
-                    value,
-                    tooltip: `${value} Lines`, color: EPISODE_COLOR_MAP[d.abs_episode - 1]
-                };
-            }
-        ),
-    {
-        xAxisLabel: "Total number of Episode",
-        yAxisLabel: "Number of Lines",
-        labelSort: (a,b) =>parseInt(a)-parseInt(b),
-        //colorScheme: scheme3
-    }, {
-            parent: "#big-chart-container",
-            width: 1000,
-            height: 150,
-            margin: { top: 50, left: 100, bottom: 50, right: 50 }
-        }
-    );
 
 
 
@@ -257,7 +264,7 @@ function visualizeData(data: KorraEpisode[]) {
                 }
                 return acc;
             },
-            {} as Record<string, number>,
+            () => ({}) as Record<string, number>,
             (obj) => ({
                 data: Object.entries(obj).map(([text, value]) => ({ text, value })).slice(0, 200),
                 unknownCount: 0
@@ -265,9 +272,10 @@ function visualizeData(data: KorraEpisode[]) {
         ),
         {},
         {
-            parent: '#big-chart-container',
+            parent: '#left-chart-container',
             height: 400,
-            width: 800
+            width: 800,
+            margin: { top: 10, left: 10, bottom: 10, right: 10 }
         }
     );
     console.timeEnd("cloud");

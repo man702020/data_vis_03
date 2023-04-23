@@ -4,6 +4,7 @@ interface CommonBarConfig {
     sort?: (a: BarData, b: BarData) => number;
     colorScheme?: readonly string[];
     eventHandler?: CharacterEventHandler;
+    padding?: number;
 }
 interface BarConfig extends CommonBarConfig, XYChartConfig<BarData, string, number> {
 }

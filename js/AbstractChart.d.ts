@@ -26,6 +26,7 @@ declare abstract class AbstractChart<T, D, Config extends ChartConfig<D>> extend
 interface XYChartConfig<D, X, Y> extends ChartConfig<D> {
     xAxisLabel: string;
     xTickFormat?: (d: X) => string;
+    xTickRotate?: number;
     yAxisLabel: string;
     yTickFormat?: (d: Y) => string;
 }

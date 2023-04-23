@@ -6,7 +6,8 @@ interface CommonBarConfig {
     labelSort?: (a: string, b: string) => number;
     sort?: (a: BarData, b: BarData) => number;
     colorScheme?: readonly string[];
-    eventHandler?: CharacterEventHandler
+    eventHandler?: CharacterEventHandler;
+    padding?: number;
 }
 interface BarConfig extends CommonBarConfig, XYChartConfig<BarData, string, number> {  }
 interface HorizontalBarConfig extends CommonBarConfig, XYChartConfig<BarData, number, string> {  }
@@ -46,7 +47,7 @@ class BarChart<T> extends AbstractXYChart<T, BarData, "label", "value", BarConfi
         this.xScale = d3.scaleBand()
             .domain(xDomain)
             .range([0, this.drawConfig.width])
-            .padding(0.4);
+            .padding(this.chartConfig.padding || 0.4);
         this.yScale = d3.scaleLinear()
             .domain(yDomain)
             .range([this.drawConfig.height, 0]);
@@ -145,7 +146,7 @@ class HorizontalBarChart<T> extends AbstractXYChart<T, BarData, "value", "label"
         this.yScale = d3.scaleBand()
             .domain(yDomain)
             .range([0, drawConfig.height])
-            .padding(0.4);
+            .padding(this.chartConfig.padding || 0.4);
         if(this.chartConfig.colorScheme) {
             this.cScale = d3.scaleOrdinal(yDomain, this.chartConfig.colorScheme)
         }

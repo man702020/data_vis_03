@@ -59,6 +59,10 @@ class AbstractXYChart extends AbstractChart {
             xAxisSel.selectAll(".tick text")
                 .call(wrapAxisText, xWrapWidth);
         }
+        if (this.chartConfig.xTickRotate) {
+            xAxisSel.selectAll(".tick text")
+                .attr("transform", `translate(-6, 8) rotate(${this.chartConfig.xTickRotate}, 0, 10)`);
+        }
         this.svg.append("text")
             .attr("class", "x-label")
             .attr("text-anchor", "middle")
@@ -72,7 +76,7 @@ class AbstractXYChart extends AbstractChart {
             .attr("class", "y-label")
             .attr("text-anchor", "middle")
             .attr("x", 0 - this.margin.top - this.drawConfig.height / 2)
-            .attr("y", 50)
+            .attr("y", 20)
             .attr("transform", "rotate(-90)")
             .text(this.chartConfig.yAxisLabel);
     }
