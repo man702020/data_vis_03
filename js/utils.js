@@ -43,7 +43,7 @@ function wrapAxisText(text, width) {
 const tooltipElement = d3.select("#tooltip");
 function enableTooltip(sel, ttFn) {
     sel
-        .on("mouseover", (ev, d) => {
+        .on("mouseover.tooltip", (ev, d) => {
         const tooltip = ttFn(d);
         if (!tooltip) {
             return;
@@ -54,7 +54,7 @@ function enableTooltip(sel, ttFn) {
             .style("visibility", "visible")
             .html(tooltip);
     })
-        .on("mouseout", () => {
+        .on("mouseout.tooltip", () => {
         tooltipElement.style("visibility", "hidden");
     });
 }
@@ -166,20 +166,18 @@ function timePieMapper(bucketFn, mapFn) {
     };
 }
 // Does nothing just to get around the forced use of mappers
-function emptyMapper(bucketFn, mapFn, valueStr) {
+function identityMapper() {
     return (sourceData) => {
-        const dict = {};
+        const data = [];
         let unknownCount = 0;
         for (const t of sourceData) {
-            const key = bucketFn(t);
-            if (!key) {
+            if (t === undefined || t === null) {
                 unknownCount++;
-                continue;
             }
-            //console.log('t:',t,t[valueStr]);
-            dict[key] = 0; // shows error but idk how to fix
+            else {
+                data.push(t);
+            }
         }
-        const data = Object.entries(dict).map(([bucket, count]) => mapFn(bucket, count));
         return { data, unknownCount };
     };
 }
@@ -264,6 +262,12 @@ function binDateDayMapper(mapFn, binConfig) {
         }
         const data = bin(mapData);
         return { data, unknownCount };
+    };
+}
+function accumulateMapper(accFn, initialAcc, mapFn) {
+    return (sourceData) => {
+        const acc = sourceData.reduce(accFn, initialAcc);
+        return mapFn(acc);
     };
 }
 //# sourceMappingURL=utils.js.map

@@ -55,7 +55,7 @@ function enableTooltip<Datum, PDatum>(
     ttFn: (d: Datum) => string | undefined
 ) {
     sel
-        .on("mouseover", (ev, d) => {
+        .on("mouseover.tooltip", (ev, d) => {
             const tooltip = ttFn(d);
             if (!tooltip) { return; }
             tooltipElement
@@ -64,7 +64,7 @@ function enableTooltip<Datum, PDatum>(
                 .style("visibility", "visible")
                 .html(tooltip)
         })
-        .on("mouseout", () => {
+        .on("mouseout.tooltip", () => {
             tooltipElement.style("visibility", "hidden")
         });
 }
@@ -182,21 +182,17 @@ function timePieMapper<T, D>(bucketFn: (d: T) => string | undefined, mapFn: (buc
 }
 
 // Does nothing just to get around the forced use of mappers
-function emptyMapper<T, D>(bucketFn: (d: T) => string | undefined, mapFn: (bucket: string, count: number) => D,valueStr: string): DataMapperFn<T, D> {
+function identityMapper<D>(): DataMapperFn<D | undefined, D> {
     return (sourceData) => {
-        const dict: Record<string, number> = {};
+        const data: D[] = [];
         let unknownCount = 0;
         for(const t of sourceData) {
-            const key = bucketFn(t);
-            if(!key) {
-                unknownCount++;
-                continue;
+            if(t === undefined || t === null) {
+                unknownCount++
+            } else {
+                data.push(t);
             }
-            //console.log('t:',t,t[valueStr]);
-            dict[key] = 0; // shows error but idk how to fix
-
         }
-        const data = Object.entries(dict).map(([bucket, count]) => mapFn(bucket, count));
         return { data, unknownCount };
     }
 }
@@ -300,4 +296,13 @@ function binDateDayMapper<T>(
         const data = bin(mapData);
         return { data, unknownCount };
     };
+}
+
+
+
+function accumulateMapper<T, U, D>(accFn: (acc: U, d: T) => U, initialAcc: U, mapFn: (acc: U) => ChartData<D>): DataMapperFn<T, D> {
+    return (sourceData) => {
+        const acc = sourceData.reduce(accFn, initialAcc);
+        return mapFn(acc);
+    }
 }

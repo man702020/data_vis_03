@@ -10,9 +10,9 @@
 }
 
 .data-element {
-    opacity: 0.85;
+    opacity: 0.75;
 }
-.data-element:hover {
+.data-element.highlight, .data-element:hover {
     opacity: 1;
 }
 
@@ -32,4 +32,22 @@
     font-weight: 500;
     font-size: 0.8rem;
     color: #888;
+}
+
+
+.line-plot-layer.highlight > .line-plot-marker {
+    r: 5px;
+}
+.line-plot-layer.highlight > .line-plot-line {
+    stroke-width: 3px;
+}
+
+.legend-entry.highlight > circle {
+    r: 5px;
+}
+.legend-entry.highlight > line {
+    stroke-width: 3px;
+}
+.legend-entry.highlight > text {
+    font-weight: bold;
 }
