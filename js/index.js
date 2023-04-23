@@ -186,10 +186,16 @@ function visualizeData(data, charData) {
         ;
     };
     const updateCharTable = (charData) => {
-        const num_colums = 4; // number of columns in the row
-        let table = '<table>';
+        console.log("swidth", screen.width);
+        let screenWidth = screen.width;
+        let num_colums = 2;
+        if (screenWidth > 1500) {
+            num_colums = 3;
+        }
+        let table = '<table class="table table-bordered table-responsive">';
         // returns all characters found in selected data transcript
-        table += `<tr><th>Characters: ${charData.length}</th>`;
+        table += `<thead><th colspan=${num_colums * 4}>Characters: ${charData.length}</th></thead>`;
+        table = table + `<tbody>`;
         for (let charIndex = 0; charIndex < charData.length; charIndex += num_colums) {
             table = table + `<tr>`;
             for (let char_section = 0; char_section < num_colums; char_section++) {
@@ -207,6 +213,7 @@ function visualizeData(data, charData) {
             table += `</tr>`;
         }
         ;
+        table = table + `</tbody>`;
         table += "</table>";
         let tablePlace = document.getElementById("characterTable");
         if (tablePlace) {
