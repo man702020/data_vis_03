@@ -1,24 +1,24 @@
-function parseCharacter(row: d3.DSVRowString<string>): KorraCharacterData {
+function parseCharacter2(row: d3.DSVRowString<string>): KorraCharacterData {
     return {
         Name: row.name!,
         Url: row.url!,
         Image_Url: row.imageUrl
     }
 }
-
+/*
 // d3.tsv('data/sampleData.tsv')
 d3.json('data/episodes.json')
     .then((rawData) => {
-        const data = rawData as KorraEpisode[];
+        const data2 = rawData as KorraEpisode[];
 
         console.log(`Data loading complete: ${data.length} episodes.`);
-        console.log("Example:", data[0]);
+        console.log("Example:", data2[0]);
         d3.csv('data/KorraCharacters.csv')
         .then((rawcharData) => {
-            const charData = rawcharData.map(parseCharacter)
-            console.log(`Data loading complete: ${charData.length} characters.`);
-            console.log("Example:", charData[0]);
-            return visualizeData2(data,charData);
+            const charData2 = rawcharData.map(parseCharacter2)
+            console.log(`Data loading complete: ${charData2.length} characters.`);
+            console.log("Example:", charData2[0]);
+            return visualizeData2(data2,charData2);
         }).catch(err => {
             console.error("Error loading Character data");
             console.error(err);
@@ -33,7 +33,7 @@ d3.json('data/episodes.json')
 function isMatch(searchOnString: string, searchText: string) { // searches for a whole word within a tring of words
     searchText = searchText.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
     return searchOnString.match(new RegExp("\\b"+searchText+"\\b", "i")) != null;
-  }
+  }*/
 
 
 function visualizeData2(data: KorraEpisode[], charData:KorraCharacterData[]) {
