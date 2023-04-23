@@ -46,17 +46,19 @@ function visualizeData2(data: KorraEpisode[], charData:KorraCharacterData[]) {
             // Try secondary finding?
             foundChar = charData.find(d =>isMatch(d.Name.toLowerCase(),name));
             if (foundChar) {
-                console.log("Found second time",foundChar,name)
+                //console.log("Found second time",foundChar,name)
             } 
         }
         return foundChar 
     }
+
+    
     
     const getCharacterTooltip = (name: string,label: any, value: any) =>{ // pass the label and value you want
         var lowerName = name.toLowerCase()
         var charData = findCharacterData(lowerName)
         var image = charData?.Image_Url // Might not exist
-        var url = charData?.Url
+        var url = charData?.Url // Unused due to difficulty
         var output = ` 
                         <div class='charBox'><b>${name}</b> </div>
                         <br>
@@ -67,7 +69,7 @@ function visualizeData2(data: KorraEpisode[], charData:KorraCharacterData[]) {
         if (charData != undefined){
             output = ` 
                         <div class='charBox'>
-                        <img src="${image}" 1x, width="80" height="60">
+                        <img src="${image}", width="80" height="65">
                         <br>
                         <b>${name}</b>
                         </div>
@@ -80,8 +82,9 @@ function visualizeData2(data: KorraEpisode[], charData:KorraCharacterData[]) {
 
         return output
     }
+
     const all_characters = new BarChart(
-        data[0].transcript,
+        data[20].transcript,
         aggregateMapper(
             (d) => d.speaker,
             (b, c) => ({ label: b, value: c, 
@@ -102,5 +105,51 @@ function visualizeData2(data: KorraEpisode[], charData:KorraCharacterData[]) {
         }
     )
 
+    const getCharactersInData = (data:KorraEpisode[]) =>{
+        //console.log("Grabbing characters in selected episode set",data)
+        let all_names = new Set<string>()
+        let all_characters = new Array<KorraCharacterData>()
+        for (const episode of data) {
+            episode.transcript.forEach(line => {
+                if (line.speaker.includes("May")){
+                    console.log("line speaker change",line)
+                }
+                all_names.add(line.speaker);
+
+                
+            })
+        }
+        for (const name of all_names){
+            let characterData = findCharacterData(name);
+            let exists = all_characters.find(d => d.Name === characterData?.Name);  // removes dupes
+            if (characterData  != undefined && !exists) {
+                all_characters.push(characterData);
+            }
+        }
+        return all_characters;
+    }
+
+    // Character table
+    const updateCharTable = (data: KorraEpisode[]) => { // Pass in updated data here
+        console.log("Updating character table")
+        let table = '<table border="1">';
+        let charactersInData = getCharactersInData(data); // returns all characters found in selected data transcript
+        console.log("got character data",charactersInData)
+        table += `<tr><th></th><th>Name</th><th>Details</th></tr>`;
+        charactersInData.forEach((character, index) => {
+            table = table + `<tr>`;
+            table = table + `<td> <img src="${character.Image_Url}", width="45" height="40"></td>`;
+            table = table + `<td>${character.Name}</td>`;
+            table = table + `<td><a href='${character.Url}'> Details</a></td>`;
+            table += `</tr>`;
+         });
+         table += "</table>";
+         let tablePlace = document.getElementById("characterTable")
+         if (tablePlace) {
+            tablePlace.innerHTML = table;
+         }
+     }
+     
+    updateCharTable(data); // Pas in character
     d3.select("#loader").remove();
 }
