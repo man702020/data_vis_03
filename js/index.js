@@ -52,18 +52,61 @@ function visualizeData(data) {
         }
         return acc;
     }, {});
-    const topTenCharacters = Object.entries(characterLines).sort((a, b) => b[1] - a[1]).slice(0, 10);
-    const linesPerCharacter = new BarChart(topTenCharacters, elementMapper(([speaker, lines]) => ({ label: speaker, value: lines })), {
+    const topTenCharacterLines = Object.entries(characterLines).sort((a, b) => b[1] - a[1]).slice(0, 10);
+    const topTenCharacters = topTenCharacterLines.map(([speaker, _]) => speaker);
+    const characterColors = {};
+    topTenCharacters.forEach((name, i) => {
+        characterColors[name] = d3.schemeCategory10[i];
+    });
+    const linesPerCharacter = new BarChart(topTenCharacterLines, elementMapper(([speaker, lines]) => ({ label: speaker, value: lines, color: characterColors[speaker] })), {
         xAxisLabel: "Character",
         yAxisLabel: "Lines",
-        colorScheme: d3.schemeCategory10,
-        labelOrder: topTenCharacters.map(([speaker, _]) => speaker)
+        labelOrder: topTenCharacters
     }, {
         parent: "#chart-container",
         className: "col-12",
         height: 200,
         width: 500,
         margin: { top: 50, right: 50, bottom: 50, left: 100 }
+    });
+    const linesPerEpisode = new MultiLineChart(data, accumulateMapper((acc, ep) => {
+        const epLines = {};
+        for (const line of ep.transcript) {
+            if (!topTenCharacters.includes(line.speaker)) {
+                continue;
+            }
+            if (line.speaker in epLines) {
+                epLines[line.speaker]++;
+            }
+            else {
+                epLines[line.speaker] = 1;
+            }
+        }
+        for (const speaker in epLines) {
+            if (speaker in acc) {
+                acc[speaker].values.push({ x: ep.abs_episode, y: epLines[speaker] });
+            }
+            else {
+                acc[speaker] = {
+                    label: speaker,
+                    color: characterColors[speaker],
+                    values: [
+                        { x: ep.abs_episode, y: epLines[speaker] }
+                    ]
+                };
+            }
+        }
+        return acc;
+    }, {}, (data) => ({ data: Object.values(data), unknownCount: 0 })), {
+        title: "Character Lines per Episode",
+        xAxisLabel: "Episode",
+        yAxisLabel: "Lines",
+    }, {
+        parent: "#big-chart-container",
+        className: "col-12",
+        height: 400,
+        width: 1000,
+        margin: { top: 50, right: 100, bottom: 50, left: 90 }
     });
     /*
     const timelineHist = new DateHistogramChart(
