@@ -23,6 +23,7 @@ class WordMap<T> extends AbstractVisualization<T, Word, WordMapConfig>
 
     protected margin: Margin;
 
+
     private colorScale = d3.scaleThreshold<number, string>()
         .domain([1, 10, 50, 100, 300, 500])
         .range(["#CCE5FF", "#99C2FF", "#66A3FF", "#3377FF", "#0047B3", "#002147"]);
@@ -58,39 +59,6 @@ class WordMap<T> extends AbstractVisualization<T, Word, WordMapConfig>
                 .html(chartConfig.title);
         }
 
-        this.svg.append("rect")
-            .attr('x', 2)
-            .attr('y', 135)
-            .attr('height', 150)
-            .attr('width', 105)
-            .attr('fill', 'white')
-            .attr('stroke', "black")
-            .attr('stroke-width', 1);
-        this.svg.append("text")
-            .attr("x", 7)
-            .attr("y", 150)
-            .attr("text-anchor", "left")
-            .style("alignment-baseline", "middle")
-            .text("Occurrences:");
-        this.svg.selectAll("legdots")
-            .data([0.99, 9.99, 49.99, 99.99, 299.99, 499.99, 500])
-            .enter()
-            .append("circle")
-            .attr("cx", 12)
-            .attr("cy", (d, i) => 170 + i * 15)
-            .attr("r", 5)
-            .style("fill", (d) => this.colorScale(d));
-        this.svg.selectAll("leglabels")
-            .data(["1", "2-10", "11-50", "51-100", "101-300", "301-500", "501+"])
-            .enter()
-            .append("text")
-            .attr("x", 22)
-            .attr("y", (d, i) => 170 + i * 15)
-            .style("fill", "black")
-            .text((d) => d)
-            .attr("text-anchor", "left")
-            .style("alignment-baseline", "middle");
-
 
         this.cloud = makeCloud()
             .size([this.drawConfig.width, this.drawConfig.height])
@@ -98,22 +66,12 @@ class WordMap<T> extends AbstractVisualization<T, Word, WordMapConfig>
             .rotate(this.rotate)
             .font(this.fontFamily)
             .fontSize((d) => Math.sqrt(d.value) * this.fontScale)
-            // .on("word", ({ size, x, y, rotate, text }) => {
-            //     this.ctx
-            //         .append("text")
-            //         .attr("class", "words")
-            //         .attr("font-size", size!)
-            //         .attr("transform", `translate(${x},${y}) rotate(${rotate})`)
-            //         .style("fill", (d) => this.colorScale(Math.pow(size! / this.fontScale, 2)))
-            //     .text(text);
-            // })
             .on("end", (words) => {
-                console.log("words!", words.length);
                 this.ctx.selectAll(".word-cloud-word").data(words).join("text")
                     .attr("class", "word-cloud-word")
                     .attr("font-size", (d) => d.size!)
                     .attr("transform", (d) => `translate(${d.x},${d.y}) rotate(${d.rotate})`)
-                    .style("fill", (d) => this.colorScale(Math.pow(d.size! / this.fontScale, 2)))
+                    .style("fill", (d, i) => d3.schemeCategory10[i % 10])
                     .text((d) => d.text)
             });
 

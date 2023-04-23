@@ -12,7 +12,7 @@ class BarChart extends AbstractXYChart {
         this.xScale = d3.scaleBand()
             .domain(xDomain)
             .range([0, this.drawConfig.width])
-            .padding(0.4);
+            .padding(this.chartConfig.padding || 0.4);
         this.yScale = d3.scaleLinear()
             .domain(yDomain)
             .range([this.drawConfig.height, 0]);
@@ -55,6 +55,9 @@ class BarChart extends AbstractXYChart {
         })
             .on("mouseover", (_ev, d) => { var _a; return (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.emit("hover", d.label); })
             .on("mouseout", (_ev, d) => { var _a; return (_a = this.chartConfig.eventHandler) === null || _a === void 0 ? void 0 : _a.emit("unhover", d.label); });
+        if (this.chartConfig.onDataSelect) {
+            barSel.style("cursor", "pointer");
+        }
         enableTooltip(barSel, (d) => d.tooltip);
     }
 }
@@ -78,7 +81,7 @@ class HorizontalBarChart extends AbstractXYChart {
         this.yScale = d3.scaleBand()
             .domain(yDomain)
             .range([0, drawConfig.height])
-            .padding(0.4);
+            .padding(this.chartConfig.padding || 0.4);
         if (this.chartConfig.colorScheme) {
             this.cScale = d3.scaleOrdinal(yDomain, this.chartConfig.colorScheme);
         }

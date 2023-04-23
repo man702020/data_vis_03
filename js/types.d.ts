@@ -9,6 +9,15 @@ interface KorraEpisode {
     title: string;
     transcript_url: string;
     transcript: TranscriptLine[];
+    words: Record<string, number>;
+}
+interface KorraSeason {
+    season: number;
+    episodes: number;
+}
+interface LoadedData {
+    episodes: KorraEpisode[];
+    seasons: KorraSeason[];
 }
 interface KorraCharacterData {
     Name: string;

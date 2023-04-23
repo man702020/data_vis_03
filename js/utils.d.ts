@@ -1,3 +1,4 @@
+declare function padNumber(n: number, width: number): string;
 declare function createSVG(drawConfig: DrawConfig): d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
 declare function replaceAll(string: string | undefined, search: string, replace: string): string | undefined;
 declare function wrapAxisText(text: d3.Selection<d3.BaseType, unknown, SVGGElement, any>, width: number): void;
@@ -26,5 +27,5 @@ declare function binDateDayMapper<T>(mapFn: (d: T) => Date | undefined, binConfi
     startOfWeek?: number;
     dayOfMonth?: number;
 }): DataMapperFn<T, d3.Bin<Date, Date>>;
-declare function accumulateMapper<T, U, D>(accFn: (acc: U, d: T) => U, initialAcc: U, mapFn: (acc: U) => ChartData<D>): DataMapperFn<T, D>;
+declare function accumulateMapper<T, U, D>(accFn: (acc: U, d: T) => U, initialFn: () => U, mapFn: (acc: U) => ChartData<D>): DataMapperFn<T, D>;
 //# sourceMappingURL=utils.d.ts.map

@@ -1,11 +1,10 @@
 
-// d3.tsv('data/sampleData.tsv')
-d3.json('data/episodes.json')
+d3.json("data/data.json")
     .then((rawData) => {
-        const data = rawData as KorraEpisode[];
-        console.log(`Data loading complete: ${data.length} episodes.`);
-        console.log("Example:", data[0]);
-        return visualizeData(data);
+        const data = rawData as LoadedData;
+        console.log(`Data loading complete: ${data.episodes.length} episodes.`);
+        console.log("Example:", data.episodes[0]);
+        return visualizeData(data.episodes);
     })
     .catch(err => {
         console.error("Error loading the data");
@@ -43,30 +42,63 @@ const CHARACTER_COLOR_MAP: Record<string, string> = {
 };
 const IMPORTANT_CHARACTERS = Object.keys(CHARACTER_COLOR_MAP);
 
+const filterBtnIds = [
+    "#btn-filter-s1",
+    "#btn-filter-s2",
+    "#btn-filter-s3",
+    "#btn-filter-s4",
+];
+
 
 
 function visualizeData(data: KorraEpisode[]) {
 
     const visualizations: AbstractVisualization<KorraEpisode, unknown, VisualizationConfig<any>>[] = [];
 
-    const filterData = (newData: KorraEpisode[]) => {
+    function clearFilters() {
         visualizations.forEach((v) => {
-            v.setData(newData);
+            v.setData(data);
+            v.render();
+        });
+    }
+    const filterSeasonData = (season: number) => {
+        visualizations.forEach((v) => {
+            v.setData(data.filter((d) => d.season === season));
             v.render();
         });
     }
 
+    let activeSeasonFilter = 0;
+    function setSeasonFilter(s: number) {
+        if(s === activeSeasonFilter) { return; }
+        activeSeasonFilter = s;
+
+        if(s === 0) {
+            clearFilters();
+            d3.select("#btn-filter-none")
+                .attr("class", "btn btn-secondary");
+            d3.selectAll(filterBtnIds.join(","))
+                .attr("class", "btn btn-outline-primary");
+        } else {
+            filterSeasonData(s);
+            d3.select("#btn-filter-none")
+                .attr("class", "btn btn-outline-secondary");
+            d3.selectAll(filterBtnIds.join(","))
+                .attr("class", "btn btn-outline-primary");
+            d3.select(`#btn-filter-s${s}`)
+                .attr("class", "btn btn-primary");
+        }
+    }
+
+    d3.select("#btn-filter-none").on("click", () => setSeasonFilter(0));
+    filterBtnIds.forEach((id, idx) => {
+        d3.select(id).on("click", () => setSeasonFilter(idx + 1));
+    })
+
+
+
+    /** Used to dispatch character hover events to all visualizations */
     const characterEventHandler = new CharacterEventHandler();
-    characterEventHandler.addEventHandler((ev, ch) => {
-        console.log(ev, ch);
-    });
-
-
-    d3.select("#btn-reset-s1").on("click", () => filterData(data.filter((d) => d.season === 1)));
-    d3.select("#btn-reset-s2").on("click", () => filterData(data.filter((d) => d.season === 2)));
-    d3.select("#btn-reset-s3").on("click", () => filterData(data.filter((d) => d.season === 3)));
-    d3.select("#btn-reset-s4").on("click", () => filterData(data.filter((d) => d.season === 4)));
-    d3.select("#btn-reset-season").on("click", () => filterData(data));
 
 
 
@@ -79,13 +111,14 @@ function visualizeData(data: KorraEpisode[]) {
         {
             xAxisLabel: "Season",
             yAxisLabel: "Episodes",
+            onDataSelect: (d) => setSeasonFilter(parseInt(d.label))
         },
         {
-            parent: "#chart-container",
-            className: "col-12",
-            height: 200,
-            width: 500,
-            margin: { top: 50, right: 50, bottom: 50, left: 80 }
+            parent: "#left-chart-container",
+            className: "col-6",
+            height: 150,
+            width: 300,
+            margin: { top: 50, right: 10, bottom: 50, left: 60 }
         }
     );
 
@@ -105,7 +138,7 @@ function visualizeData(data: KorraEpisode[]) {
                 }
                 return acc;
             },
-            {  } as Record<string, number>,
+            () => ({  }) as Record<string, number>,
             (characterLines) => {
                 return {
                     data: Object.entries(characterLines).sort((a, b) => b[1] - a[1]).map(([ speaker, lines]) => ({
@@ -119,17 +152,49 @@ function visualizeData(data: KorraEpisode[]) {
             xAxisLabel: "Character",
             yAxisLabel: "Lines",
             sort: (a, b) => b.value - a.value,
-            eventHandler: characterEventHandler
+            eventHandler: characterEventHandler,
+            padding: 0.2,
+            xTickRotate: -45
         },
         {
-            parent: "#chart-container",
-            className: "col-12",
-            height: 200,
-            width: 500,
-            margin: { top: 50, right: 50, bottom: 50, left: 100 }
+            parent: "#left-chart-container",
+            className: "col-6",
+            height: 150,
+            width: 300,
+            margin: { top: 50, right: 10, bottom: 60, left: 70 }
         }
     );
     visualizations.push(linesPerCharacter);
+
+
+
+    const timelineHist = new BarChart(
+        data,
+        elementMapper(
+            (d) => {
+                const label = d.abs_episode.toString();
+                const value = d.transcript.length;
+                return {
+                    label,
+                    value,
+                    tooltip: `s${padNumber(d.season, 2)}e${padNumber(d.episode, 2)} Lines: ${value}`, color: EPISODE_COLOR_MAP[d.abs_episode - 1]
+                };
+            }
+        ),
+    {
+        xAxisLabel: "Total number of Episode",
+        yAxisLabel: "Number of Lines",
+        labelSort: (a,b) => parseInt(a) - parseInt(b),
+        padding: 0.2
+    }, {
+            parent: "#right-chart-container",
+            width: 800,
+            height: 150,
+            margin: { top: 50, left: 60, bottom: 50, right: 10 }
+        }
+    );
+
+
 
     const linesPerEpisode = new MultiLineChart(
         data,
@@ -160,7 +225,7 @@ function visualizeData(data: KorraEpisode[]) {
                 }
                 return acc;
             },
-            {} as Record<string, Series>,
+            () => ({}) as Record<string, Series>,
             (data) => ({ data: Object.values(data), unknownCount: 0 })
         ),
         {
@@ -171,7 +236,7 @@ function visualizeData(data: KorraEpisode[]) {
             // onMouseOver: (d) => console.log(`Mouse Over ${d.label}`)
         },
         {
-            parent: "#big-chart-container",
+            parent: "#right-chart-container",
             className: "col-12",
             height: 400,
             width: 1000,
@@ -182,61 +247,38 @@ function visualizeData(data: KorraEpisode[]) {
 
 
 
-    const timelineHist = new BarChart(
-        data,
-        elementMapper(
-            (d) => {
-                const label = d.abs_episode.toString();
-                const value = d.transcript.length;
-                return {
-                    label,
-                    value,
-                    tooltip: `${value} Lines`, color: EPISODE_COLOR_MAP[d.abs_episode - 1]
-                };
-            }
-        ),
-    {
-        xAxisLabel: "Total number of Episode",
-        yAxisLabel: "Number of Lines",
-        labelSort: (a,b) =>parseInt(a)-parseInt(b),
-        //colorScheme: scheme3
-    }, {
-            parent: "#big-chart-container",
-            width: 1000,
-            height: 150,
-            margin: { top: 50, left: 100, bottom: 50, right: 50 }
-        }
-    );
 
+
+
+    console.time("cloud");
     const wordCloud = new WordMap(
         data,
         accumulateMapper(
-            (acc, ep) => {
-                for(const line of ep.transcript) {
-                    for(const word of line.text.toLowerCase().split(/[;:!?,\s\/\.“"\-—()[\]{}]+/)) {
-                        if(!word || COMMON_WORDS.has(word)) { continue; }
-                        if(word in acc) {
-                            acc[word]++;
-                        } else {
-                            acc[word] = 1;
-                        }
+            (acc, season) => {
+                for(const word in season.words) {
+                    if(word in acc) {
+                        acc[word] += season.words[word];
+                    } else {
+                        acc[word] = season.words[word];
                     }
                 }
                 return acc;
             },
-            {} as Record<string, number>,
+            () => ({}) as Record<string, number>,
             (obj) => ({
-                data: Object.entries(obj).map(([text, value]) => ({ text, value })),
+                data: Object.entries(obj).map(([text, value]) => ({ text, value })).slice(0, 200),
                 unknownCount: 0
             })
         ),
         {},
         {
-            parent: '#big-chart-container',
+            parent: '#left-chart-container',
             height: 400,
-            width: 800
+            width: 800,
+            margin: { top: 10, left: 10, bottom: 10, right: 10 }
         }
     );
+    console.timeEnd("cloud");
     visualizations.push(wordCloud);
 
 

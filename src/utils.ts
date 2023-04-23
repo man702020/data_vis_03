@@ -1,6 +1,16 @@
 
 
 
+function padNumber(n: number, width: number) {
+    const nStr = n.toString();
+    if(nStr.length < width) {
+        return "0".repeat(width - nStr.length) + nStr;
+    } else {
+        return nStr;
+    }
+}
+
+
 function createSVG(drawConfig: DrawConfig) {
     const margin = drawConfig.margin || { top: 0, bottom: 0, left: 0, right: 0 };
     const width = drawConfig.width + margin.left + margin.right;
@@ -300,9 +310,13 @@ function binDateDayMapper<T>(
 
 
 
-function accumulateMapper<T, U, D>(accFn: (acc: U, d: T) => U, initialAcc: U, mapFn: (acc: U) => ChartData<D>): DataMapperFn<T, D> {
+function accumulateMapper<T, U, D>(
+    accFn: (acc: U, d: T) => U,
+    initialFn: () => U,
+    mapFn: (acc: U) => ChartData<D>
+): DataMapperFn<T, D> {
     return (sourceData) => {
-        const acc = sourceData.reduce(accFn, initialAcc);
+        const acc = sourceData.reduce(accFn, initialFn());
         return mapFn(acc);
     }
 }
