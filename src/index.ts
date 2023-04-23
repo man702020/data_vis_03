@@ -47,7 +47,7 @@ const IMPORTANT_CHARACTERS = Object.keys(CHARACTER_COLOR_MAP);
 
 function visualizeData(data: KorraEpisode[]) {
 
-    const visualizations: AbstractChart<KorraEpisode, unknown, ChartConfig<any>>[] = [];
+    const visualizations: AbstractVisualization<KorraEpisode, unknown, VisualizationConfig<any>>[] = [];
 
     const filterData = (newData: KorraEpisode[]) => {
         visualizations.forEach((v) => {
@@ -237,6 +237,7 @@ function visualizeData(data: KorraEpisode[]) {
             width: 800
         }
     );
+    visualizations.push(wordCloud);
 
 
 

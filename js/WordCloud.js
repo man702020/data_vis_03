@@ -19,7 +19,7 @@ class WordMap extends AbstractVisualization {
         this.svg = createSVG(drawConfig);
         this.ctx = this.svg.append("g")
             .attr("class", "chart-area")
-            .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
+            .attr("transform", `translate(${this.margin.left + this.drawConfig.width / 2}, ${this.margin.top + this.drawConfig.height / 2})`)
             .attr("font-family", this.fontFamily)
             .attr("text-anchor", "middle");
         this.setData(rawData);
@@ -68,18 +68,30 @@ class WordMap extends AbstractVisualization {
             .rotate(this.rotate)
             .font(this.fontFamily)
             .fontSize((d) => Math.sqrt(d.value) * this.fontScale)
-            .on("word", ({ size, x, y, rotate, text }) => {
-            this.ctx
-                .append("text")
-                .attr("class", "words")
-                .attr("font-size", size)
-                .attr("transform", `translate(${x},${y}) rotate(${rotate})`)
-                .style("fill", (d) => this.colorScale(Math.pow(size / this.fontScale, 2)))
-                .text(text);
+            // .on("word", ({ size, x, y, rotate, text }) => {
+            //     this.ctx
+            //         .append("text")
+            //         .attr("class", "words")
+            //         .attr("font-size", size!)
+            //         .attr("transform", `translate(${x},${y}) rotate(${rotate})`)
+            //         .style("fill", (d) => this.colorScale(Math.pow(size! / this.fontScale, 2)))
+            //     .text(text);
+            // })
+            .on("end", (words) => {
+            console.log("words!", words.length);
+            this.ctx.selectAll(".word-cloud-word").data(words).join("text")
+                .attr("class", "word-cloud-word")
+                .attr("font-size", (d) => d.size)
+                .attr("transform", (d) => `translate(${d.x},${d.y}) rotate(${d.rotate})`)
+                .style("fill", (d) => this.colorScale(Math.pow(d.size / this.fontScale, 2)))
+                .text((d) => d.text);
         });
         this.render();
     }
     render() {
+        this.cloud.stop();
+        this.cloud.words(this.data);
+        this.cloud.start();
         // let episode = [];
         // for (let i = 0; i < this.data.length; i++) {
         //     episode.push(this.data[i].transcript);
@@ -106,9 +118,6 @@ class WordMap extends AbstractVisualization {
         //     .map(([text, value]) => ({ text, value }));
         // this.fontScale = 70 / Math.sqrt(this.wordData[0].value);
         // console.log(this.wordData);
-        this.cloud.stop();
-        this.cloud.words(this.data);
-        this.cloud.start();
     }
 }
 //# sourceMappingURL=WordCloud.js.map

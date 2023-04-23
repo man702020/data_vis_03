@@ -179,6 +179,7 @@ function visualizeData(data) {
         height: 400,
         width: 800
     });
+    visualizations.push(wordCloud);
     d3.select("#loader").remove();
 }
 //# sourceMappingURL=index.js.map
