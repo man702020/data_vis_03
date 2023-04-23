@@ -4,6 +4,8 @@
 interface LineConfig extends XYChartConfig<Point2D, number, number> {
     xScale?: "linear" | "log";
     yScale?: "linear" | "log";
+    tooltipFn?: (d:Point2D&{series:Series}) => string;
+
 }
 
 class LineChart<T> extends AbstractXYChart<T, Point2D, "x", "y", LineConfig>
@@ -162,7 +164,6 @@ class MultiLineChart<T> extends AbstractChart<T, Series, MultiLineConfig>
         dataMapper: DataMapperFn<T, Series>,
         lineConfig: MultiLineConfig,
         drawConfig: DrawConfig,
-        tooltip?: string,
     ) {
         super(rawData, dataMapper, lineConfig, drawConfig);
 

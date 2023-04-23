@@ -1,6 +1,9 @@
 interface LineConfig extends XYChartConfig<Point2D, number, number> {
     xScale?: "linear" | "log";
     yScale?: "linear" | "log";
+    tooltipFn?: (d: Point2D & {
+        series: Series;
+    }) => string;
 }
 declare class LineChart<T> extends AbstractXYChart<T, Point2D, "x", "y", LineConfig> {
     protected xScale: d3.ScaleContinuousNumeric<number, number, never>;
@@ -22,6 +25,9 @@ interface MultiLineConfig extends ChartConfig<Series> {
     xTickFormat?: (d: number) => string;
     yAxisLabel: string;
     yTickFormat?: (d: number) => string;
+    tooltipFn?: (d: Point2D & {
+        series: Series;
+    }) => string;
     colorScheme?: readonly string[];
     eventHandler?: CharacterEventHandler;
     xScale?: "linear" | "log";

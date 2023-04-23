@@ -290,11 +290,12 @@ function visualizeData(data: KorraEpisode[],charData:KorraCharacterData[]) {
                 }
                 return acc;
             },
+            
             () => ({  }) as Record<string, number>,
             (characterLines) => {
                 return {
                     data: Object.entries(characterLines).sort((a, b) => b[1] - a[1]).map(([ speaker, lines]) => ({
-                        label: speaker, value: lines, color: CHARACTER_COLOR_MAP[speaker]
+                        label: speaker, value: lines, color: CHARACTER_COLOR_MAP[speaker],tooltip:getCharacterTooltip(speaker,`Total Lines`,lines)
                     })),
                     unknownCount: 0
                 }
@@ -306,7 +307,7 @@ function visualizeData(data: KorraEpisode[],charData:KorraCharacterData[]) {
             sort: (a, b) => b.value - a.value,
             eventHandler: characterEventHandler,
             padding: 0.2,
-            xTickRotate: -45
+            xTickRotate: -45,
         },
         {
             parent: "#left-chart-container",
@@ -326,10 +327,12 @@ function visualizeData(data: KorraEpisode[],charData:KorraCharacterData[]) {
             (d) => {
                 const label = d.abs_episode.toString();
                 const value = d.transcript.length;
+                console.log("COLOR>>?",EPISODE_COLOR_MAP[d.abs_episode - 1],d,d.abs_episode)
                 return {
                     label,
                     value,
-                    tooltip: `s${padNumber(d.season, 2)}e${padNumber(d.episode, 2)} Lines: ${value}`, color: EPISODE_COLOR_MAP[d.abs_episode - 1]
+                    tooltip: `s${padNumber(d.season, 2)}e${padNumber(d.episode, 2)} Lines: ${value}`, 
+                    color: EPISODE_COLOR_MAP[d.abs_episode - 1],
                 };
             }
         ),
@@ -427,7 +430,7 @@ function visualizeData(data: KorraEpisode[],charData:KorraCharacterData[]) {
             parent: '#left-chart-container',
             height: 400,
             width: 800,
-            margin: { top: 10, left: 10, bottom: 10, right: 10 }
+            margin: { top: 10, left: 10, bottom: 10, right: 10 },
         }
     );
     console.timeEnd("cloud");
