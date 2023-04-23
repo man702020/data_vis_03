@@ -8,7 +8,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # this code scrapes all of the characters
 
-character_link = "https://avatar.fandom.com/wiki/The_Legend_of_Korra#Characters"
+character_link = "https://avatar.fandom.com/wiki/Category:Legend_of_Korra_characters"
 
 
 
@@ -21,7 +21,42 @@ def getPage(url):
 def cleanText(text): # cleans up newlines and whitespaces in a text
     return text.replace('\n', '').replace('\r', '').strip()
 
-def getCharacterUrls(page): # parses main index and returns cas/linkTouple list
+
+
+def getAllCharaterUrls(page): #Grabs ALL characters
+    linkHeader = "https://avatar.fandom.com/"
+    all_characters = []
+    print("\n getting characteers")
+    
+    chars =page.find_all("a",{'class':"category-page__member-link"})
+    print("Chars \n",chars[0])
+    for char in chars:
+        name = char.get('title')
+        if name.startswith("Category:"): #skip these
+            print("skipping category")
+            continue
+            
+        link = char.get('href')
+        print("\nName:",name,"\nLink:",link)
+        characterUrl = linkHeader + link
+        characterPage = getPage(characterUrl)
+        imageLink = getImageLink(characterPage)
+        if imageLink:
+            sliceLoc = imageLink.find(".png")
+            imageLink = imageLink[0:sliceLoc+4]
+        else:
+            print(f"ERROR: Could not find image url for character: '{name}'")
+
+        characterData = {
+            'name': name,
+            'url': characterUrl,
+            'imageUrl': imageLink,
+        }
+        all_characters.append(characterData)
+        
+
+    return all_characters
+def getCharacterUrls(page): # DEPRECIATED: Only Grabs main ish characters
     linkHeader = "https://avatar.fandom.com/"
     all_characters = []
     print("\n getting characteers")
@@ -43,8 +78,12 @@ def getCharacterUrls(page): # parses main index and returns cas/linkTouple list
         characterUrl = linkHeader + link
         characterPage = getPage(characterUrl)
         imageLink = getImageLink(characterPage)
-        if imageLink:
-            pass
+        if imageLink: #clean imagelink
+            sliceLoc = imageLink.find(".png")
+            print("foundslice",sliceLoc)
+            imageLink = imageLink[0:sliceLoc]
+            print("postslice",imageLink)
+        
         else:
             print(f"ERROR: Could not find image url for character: '{name}'")
 
@@ -60,8 +99,10 @@ def getCharacterUrls(page): # parses main index and returns cas/linkTouple list
     return all_characters
 
 def getImageLink(page: BeautifulSoup):
+    url = None
     image = page.find("img",{'class':"pi-image-thumbnail"})
-    url = image.get('src') # dont need findall but whutever
+    if image:
+        url = image.get('src') # dont need findall but whutever
     print("url",url)
     return url
 
@@ -69,7 +110,7 @@ def scrape_characters():
     totalCharacters = 0
     all_Characters = []
     page = getPage(character_link)
-    all_Characters = getCharacterUrls(page) # generates episode data for all episodes in season
+    all_Characters = getAllCharaterUrls(page) # generates episode data for all episodes in season
     print("found", all_Characters,len(all_Characters))
     return all_Characters
 
