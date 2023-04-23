@@ -1,30 +1,90 @@
-declare class Wordmap {
-    private config;
-    private data;
-    private repeat_words;
-    private rotate;
+interface WordMapConfig extends VisualizationConfig<Word> {
+    title?: string;
+    colors?: readonly string[];
+}
+declare const COMMON_WORDS: Set<string>;
+/** Manual import since typing is outdated. */
+declare const makeCloud: <T extends Word>() => Cloud<T>;
+declare class WordMap<T> extends AbstractVisualization<T, Word, WordMapConfig> {
+    protected dataMapper: DataMapperFn<T, Word>;
+    protected chartConfig: WordMapConfig;
+    protected drawConfig: DrawConfig;
+    protected svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
+    protected ctx: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
+    protected cloud: Cloud<Word>;
+    protected margin: Margin;
+    private colorScale;
     private fontFamily;
     private fontScale;
+    private rotate;
     private padding;
-    private colors;
-    private width;
-    private height;
-    private svg;
-    private chart;
-    constructor(_config: {
-        title: string;
-        parentElement: string;
-        containerWidth?: number;
-        containerHeight?: number;
-        margin?: {
-            top: number;
-            bottom: number;
-            right: number;
-            left: number;
-        };
-    }, _data: any[]);
-    private initVis;
-    renderVis(data: any): void;
-    updateVis(data: any[]): void;
+    constructor(rawData: T[], dataMapper: DataMapperFn<T, Word>, chartConfig: WordMapConfig, drawConfig: DrawConfig);
+    render(): void;
 }
-//# sourceMappingURL=Wordcloud.d.ts.map
+interface Word {
+    text: string;
+    value: number;
+    font?: string | undefined;
+    style?: string | undefined;
+    weight?: string | number | undefined;
+    rotate?: number | undefined;
+    size?: number | undefined;
+    padding?: number | undefined;
+    x?: number | undefined;
+    y?: number | undefined;
+}
+interface Cloud<T extends Word> {
+    start(): Cloud<T>;
+    stop(): Cloud<T>;
+    timeInterval(): number;
+    timeInterval(interval: number): Cloud<T>;
+    words(): T[];
+    words(words: T[]): Cloud<T>;
+    size(): [number, number];
+    size(size: [number, number]): Cloud<T>;
+    font(): (datum: T, index: number) => string;
+    font(font: string | ((datum: T, index: number) => string)): Cloud<T>;
+    fontStyle(): (datum: T, index: number) => string;
+    fontStyle(style: string | ((datum: T, index: number) => string)): Cloud<T>;
+    fontWeight(): (datum: T, index: number) => string | number;
+    fontWeight(weight: string | number | ((datum: T, index: number) => string | number)): Cloud<T>;
+    rotate(): (datum: T, index: number) => number;
+    rotate(rotate: number | ((datum: T, index: number) => number)): Cloud<T>;
+    text(): (datum: T, index: number) => string;
+    text(text: string | ((datum: T, index: number) => string)): Cloud<T>;
+    spiral(): (size: [number, number]) => (t: number) => [number, number];
+    spiral(name: string | ((size: [number, number]) => (t: number) => [number, number])): Cloud<T>;
+    fontSize(): (datum: T, index: number) => number;
+    fontSize(size: number | ((datum: T, index: number) => number)): Cloud<T>;
+    padding(): (datum: T, index: number) => number;
+    padding(padding: number | ((datum: T, index: number) => number)): Cloud<T>;
+    /**
+     * If specified, sets the internal random number generator,used for selecting the initial position of each word,
+     * and the clockwise/counterclockwise direction of the spiral for each word.
+     *
+     * @param randomFunction should return a number in the range [0, 1).The default is Math.random.
+     */
+    random(): Cloud<T>;
+    random(randomFunction: () => number): Cloud<T>;
+    /**
+     * If specified, sets the canvas generator function, which is used internally to draw text.
+     * When using Node.js, you will almost definitely override the default, e.g. using the canvas module.
+     * @param canvasGenerator should return a HTMLCanvasElement.The default is:  ()=>{document.createElement("canvas");}
+     *
+     */
+    canvas(): Cloud<T>;
+    canvas(canvasGenerator: () => HTMLCanvasElement): Cloud<T>;
+    on(type: 'word', listener: (word: T) => void): Cloud<T>;
+    on(type: 'end', listener: (tags: T[], bounds: {
+        x: number;
+        y: number;
+    }[]) => void): Cloud<T>;
+    on(type: string, listener: (...args: any[]) => void): Cloud<T>;
+    on(type: 'word'): (word: T) => void;
+    on(type: 'end'): (tags: T[], bounds: {
+        x: number;
+        y: number;
+    }[]) => void;
+    on(type: string): (...args: any[]) => void;
+}
+//# sourceMappingURL=WordCloud.d.ts.map
